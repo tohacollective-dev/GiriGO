@@ -3,17 +3,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Package, Users, BarChart2,
-  AlertTriangle, MapPin, Map, LogOut
+  AlertTriangle, MapPin, Map, FlaskConical, LogOut
 } from 'lucide-react'
 
 const nav = [
-  { href: '/admin',            label: 'Dashboard',  icon: LayoutDashboard, badge: null },
-  { href: '/admin/map',        label: 'Live Map',   icon: Map,             badge: 'LIVE' },
-  { href: '/admin/orders',     label: 'Orders',     icon: Package,         badge: null },
-  { href: '/admin/couriers',   label: 'Couriers',   icon: Users,           badge: null },
-  { href: '/admin/analytics',  label: 'Analytics',  icon: BarChart2,       badge: null },
-  { href: '/admin/exceptions', label: 'Exceptions', icon: AlertTriangle,   badge: null },
-  { href: '/admin/zones',      label: 'Zones',      icon: MapPin,          badge: null },
+  { href: '/admin',              label: 'Dashboard',   icon: LayoutDashboard, badge: null },
+  { href: '/admin/map',          label: 'Live Map',    icon: Map,             badge: 'LIVE' },
+  { href: '/admin/orders',       label: 'Orders',      icon: Package,         badge: null },
+  { href: '/admin/couriers',     label: 'Couriers',    icon: Users,           badge: null },
+  { href: '/admin/analytics',    label: 'Analytics',   icon: BarChart2,       badge: null },
+  { href: '/admin/exceptions',   label: 'Exceptions',  icon: AlertTriangle,   badge: null },
+  { href: '/admin/zones',        label: 'Zones',       icon: MapPin,          badge: null },
+  { href: '/admin/simulation',   label: 'Simulation',  icon: FlaskConical,    badge: 'TEST' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -44,7 +45,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Icon size={18} />
                 <span className="flex-1">{label}</span>
                 {badge && (
-                  <span className="text-[9px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-full tracking-wide animate-pulse">
+                  <span className={`text-[9px] font-bold text-white px-1.5 py-0.5 rounded-full tracking-wide ${
+                    badge === 'LIVE' ? 'bg-green-500 animate-pulse' : 'bg-amber-500'
+                  }`}>
                     {badge}
                   </span>
                 )}
