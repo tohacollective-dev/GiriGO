@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <!-- Giri Menang roundabout-inspired route grid -->
+  <!-- Central roundabout -->
+  <circle cx="400" cy="300" r="80" stroke="white" stroke-width="2" opacity="0.6"/>
+  <circle cx="400" cy="300" r="50" stroke="white" stroke-width="1" opacity="0.3"/>
+  <circle cx="400" cy="300" r="20" stroke="white" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- Cardinal spokes from roundabout -->
+  <line x1="400" y1="0"   x2="400" y2="220" stroke="white" stroke-width="2" opacity="0.5"/>
+  <line x1="400" y1="380" x2="400" y2="600" stroke="white" stroke-width="2" opacity="0.5"/>
+  <line x1="0"   y1="300" x2="320" y2="300" stroke="white" stroke-width="2" opacity="0.5"/>
+  <line x1="480" y1="300" x2="800" y2="300" stroke="white" stroke-width="2" opacity="0.5"/>
+
+  <!-- Diagonal spokes -->
+  <line x1="343" y1="243" x2="100"  y2="0"   stroke="white" stroke-width="1.5" opacity="0.35"/>
+  <line x1="457" y1="243" x2="700"  y2="0"   stroke="white" stroke-width="1.5" opacity="0.35"/>
+  <line x1="343" y1="357" x2="100"  y2="600" stroke="white" stroke-width="1.5" opacity="0.35"/>
+  <line x1="457" y1="357" x2="700"  y2="600" stroke="white" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Secondary grid horizontals -->
+  <line x1="0" y1="100" x2="800" y2="100" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="0" y1="200" x2="800" y2="200" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="0" y1="400" x2="800" y2="400" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="0" y1="500" x2="800" y2="500" stroke="white" stroke-width="1" opacity="0.15"/>
+
+  <!-- Secondary grid verticals -->
+  <line x1="100" y1="0" x2="100" y2="600" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="200" y1="0" x2="200" y2="600" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="600" y1="0" x2="600" y2="600" stroke="white" stroke-width="1" opacity="0.15"/>
+  <line x1="700" y1="0" x2="700" y2="600" stroke="white" stroke-width="1" opacity="0.15"/>
+
+  <!-- Curved connector arcs (road curves) -->
+  <path d="M 100 0 Q 200 100 200 200"  stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+  <path d="M 700 0 Q 600 100 600 200"  stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+  <path d="M 100 600 Q 200 500 200 400" stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+  <path d="M 700 600 Q 600 500 600 400" stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+
+  <!-- Node dots at intersections -->
+  <circle cx="200" cy="100" r="3" fill="white" opacity="0.3"/>
+  <circle cx="600" cy="100" r="3" fill="white" opacity="0.3"/>
+  <circle cx="200" cy="500" r="3" fill="white" opacity="0.3"/>
+  <circle cx="600" cy="500" r="3" fill="white" opacity="0.3"/>
+  <circle cx="100" cy="300" r="2.5" fill="white" opacity="0.25"/>
+  <circle cx="700" cy="300" r="2.5" fill="white" opacity="0.25"/>
+  <circle cx="400" cy="100" r="2.5" fill="white" opacity="0.25"/>
+  <circle cx="400" cy="500" r="2.5" fill="white" opacity="0.25"/>
+
+  <!-- Outer perimeter connectors -->
+  <path d="M 0 200 Q 50 250 0 300"    stroke="white" stroke-width="1" fill="none" opacity="0.18"/>
+  <path d="M 800 200 Q 750 250 800 300" stroke="white" stroke-width="1" fill="none" opacity="0.18"/>
+  <path d="M 200 0 Q 250 50 300 0"    stroke="white" stroke-width="1" fill="none" opacity="0.18"/>
+  <path d="M 500 0 Q 550 50 600 0"    stroke="white" stroke-width="1" fill="none" opacity="0.18"/>
+</svg>

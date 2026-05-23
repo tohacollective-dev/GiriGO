@@ -1,30 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --color-brand: #0077B6;
+    --color-navy:    #0F172A;
+    --color-blue:    #2563EB;
+    --color-yellow:  #FACC15;
+    --color-white:   #F8FAFC;
+    --color-charcoal:#1E293B;
   }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html { font-family: 'Poppins', system-ui, sans-serif; }
+
+  h1 { @apply text-display font-bold; }
+  h2 { @apply text-heading font-semibold; }
+  h3 { @apply text-subhead font-semibold; }
 }
 
 @layer components {
+  /* ── Cards ───────────────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-5;
+    @apply bg-white rounded-xl shadow-card border border-gray-100 p-5
+           transition-all duration-150 ease-in-out;
   }
+  .card:hover { box-shadow: var(--tw-shadow, 0 4px 12px rgba(0,0,0,0.12)); }
+
+  .stat-card {
+    @apply card flex items-start gap-4 min-h-[96px];
+  }
+
+  .alert-card {
+    @apply rounded-xl border-l-4 p-4 flex items-start gap-3;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
   .btn-primary {
-    @apply bg-brand-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-brand-600 transition-colors disabled:opacity-50;
+    @apply bg-brand-500 text-white px-4 py-2 rounded-lg font-semibold text-sm
+           hover:bg-brand-600 active:scale-[0.97] transition-all duration-75
+           shadow-btn disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-brand-charcoal text-[#F8FAFC] px-4 py-2 rounded-lg font-semibold text-sm
+           hover:bg-brand-900 border border-white/10 active:scale-[0.97]
+           transition-all duration-75 disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply bg-transparent text-brand-500 border border-brand-500 px-4 py-2 rounded-lg
+           font-semibold text-sm hover:bg-blue-50 hover:border-brand-600
+           active:scale-[0.97] transition-all duration-75;
   }
   .btn-ghost {
-    @apply text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors;
+    @apply text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-100
+           active:scale-[0.97] transition-all duration-75;
   }
+  .btn-danger {
+    @apply bg-red-500 text-white px-4 py-2 rounded-lg font-semibold text-sm
+           hover:bg-red-600 active:scale-[0.97] transition-all duration-75 shadow-sm;
+  }
+
+  /* ── Status badges — spec §4.3 ───────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+           text-[11px] font-semibold uppercase tracking-wide;
   }
-  .badge-pending   { @apply badge bg-yellow-100 text-yellow-800; }
-  .badge-assigned  { @apply badge bg-blue-100 text-blue-800; }
-  .badge-picked_up { @apply badge bg-purple-100 text-purple-800; }
-  .badge-delivered { @apply badge bg-green-100 text-green-800; }
-  .badge-cancelled { @apply badge bg-red-100 text-red-800; }
-  .badge-failed    { @apply badge bg-gray-100 text-gray-600; }
+  .badge-pending   { @apply text-orange-600   bg-orange-50   border border-orange-200; }
+  .badge-assigned  { @apply text-blue-600     bg-blue-50     border border-blue-200; }
+  .badge-picked_up { @apply text-violet-600   bg-violet-50   border border-violet-200; }
+  .badge-delivered { @apply text-green-600    bg-green-50    border border-green-200; }
+  .badge-cancelled { @apply text-slate-500    bg-slate-50    border border-slate-200; }
+  .badge-failed    { @apply text-red-600      bg-red-50      border border-red-200; }
+  .badge-online    { @apply text-green-600    bg-green-50    border border-green-200; }
+  .badge-busy      { @apply text-amber-600    bg-amber-50    border border-amber-200; }
+  .badge-offline   { @apply text-gray-500     bg-gray-50     border border-gray-200; }
+
+  /* ── Inputs — spec §4.5 ──────────────────────────────────────────────── */
+  .input {
+    @apply w-full border border-gray-200 bg-white h-10 px-3.5 py-2.5 rounded-lg
+           text-sm font-normal text-gray-900 placeholder:text-gray-400
+           focus:outline-none focus:border-brand-500
+           focus:ring-[3px] focus:ring-brand-100
+           disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
+           transition-shadow duration-150;
+  }
+
+  /* ── Skeleton shimmer ────────────────────────────────────────────────── */
+  .skeleton {
+    @apply rounded-lg bg-gray-200 overflow-hidden relative;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.06) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  /* ── Nav active indicator ─────────────────────────────────────────────── */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+           transition-all duration-200;
+  }
+  .nav-item-active {
+    @apply bg-white/15 text-white;
+  }
+  .nav-item-inactive {
+    @apply text-white/60 hover:bg-white/10 hover:text-white;
+  }
+
+  /* ── Toast ────────────────────────────────────────────────────────────── */
+  .toast {
+    @apply fixed top-5 right-5 z-[9999] flex items-start gap-3
+           bg-white rounded-xl shadow-xl border p-4 min-w-[300px] max-w-sm
+           animate-slide-in;
+  }
+
+  /* ── Supergraphic overlay ─────────────────────────────────────────────── */
+  .supergraphic-overlay {
+    background-image: url('/supergraphic.svg');
+    background-size: 150%;
+    background-position: center;
+    opacity: 0.08;
+    mix-blend-mode: luminosity;
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }
