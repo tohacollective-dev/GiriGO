@@ -4,8 +4,8 @@
 -- =============================================================================
 
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";  -- for address text search
+-- Note: gen_random_uuid() is used instead of uuid_generate_v4() — no extension needed (PG 13+)
 
 -- =============================================================================
 -- ENUMS
@@ -28,7 +28,7 @@ CREATE TYPE session_state    AS ENUM (
 
 -- users: all platform participants
 CREATE TABLE users (
-  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name         TEXT NOT NULL,
   phone        TEXT NOT NULL UNIQUE,          -- E.164: 628xxxxxxxxx
   role         user_role NOT NULL DEFAULT 'customer',
@@ -38,7 +38,7 @@ CREATE TABLE users (
 
 -- couriers: extended profile for courier role
 CREATE TABLE couriers (
-  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   rating           NUMERIC(3,2) NOT NULL DEFAULT 5.00 CHECK (rating BETWEEN 1 AND 5),
   status           courier_status NOT NULL DEFAULT 'offline',
@@ -56,7 +56,7 @@ CREATE TABLE couriers (
 
 -- orders: core transactional table
 CREATE TABLE orders (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_code          TEXT NOT NULL UNIQUE,   -- GG-YYMMDD-NNN format
   customer_id         UUID NOT NULL REFERENCES users(id),
   courier_id          UUID REFERENCES couriers(id),
@@ -99,7 +99,7 @@ CREATE TABLE orders (
 
 -- ledger: financial reconciliation per delivered order
 CREATE TABLE ledger (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id              UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   courier_id            UUID NOT NULL REFERENCES couriers(id),
   date                  DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -115,7 +115,7 @@ CREATE TABLE ledger (
 
 -- wa_sessions: WhatsApp conversation state machine
 CREATE TABLE wa_sessions (
-  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   phone        TEXT NOT NULL UNIQUE,           -- customer phone E.164
   user_id      UUID REFERENCES users(id),
   state        session_state NOT NULL DEFAULT 'idle',
@@ -126,7 +126,7 @@ CREATE TABLE wa_sessions (
 
 -- dispatch_log: audit trail for every dispatch attempt
 CREATE TABLE dispatch_log (
-  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id     UUID NOT NULL REFERENCES orders(id),
   courier_id   UUID REFERENCES couriers(id),
   attempt      INTEGER NOT NULL DEFAULT 1 CHECK (attempt BETWEEN 1 AND 3),
@@ -138,7 +138,7 @@ CREATE TABLE dispatch_log (
 
 -- ratings: customer → courier ratings after delivery
 CREATE TABLE ratings (
-  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id     UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   customer_id  UUID NOT NULL REFERENCES users(id),
   courier_id   UUID NOT NULL REFERENCES couriers(id),
