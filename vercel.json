@@ -1,0 +1,57 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "regions": ["sin1"],
+  "env": {
+    "NEXT_PUBLIC_APP_NAME": "GiriGo Courier",
+    "DISPATCH_TIMEOUT_SECONDS": "60",
+    "DISPATCH_MAX_ATTEMPTS": "3",
+    "DISPATCH_RADIUS_KM": "5",
+    "BASE_DELIVERY_FEE": "5000",
+    "PER_KM_RATE": "2000",
+    "BASE_DISTANCE_KM": "2",
+    "COURIER_REVENUE_SHARE": "0.85"
+  },
+  "functions": {
+    "src/app/api/webhook/whatsapp/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/dispatch/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/geocode/route.ts": {
+      "maxDuration": 15
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    },
+    {
+      "source": "/courier",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/tracking/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=10, stale-while-revalidate=30" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/track/:code",
+      "destination": "/tracking/:code"
+    }
+  ]
+}
