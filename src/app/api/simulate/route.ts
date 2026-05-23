@@ -7,7 +7,7 @@
 //   accept_order    — simulate courier accepting the dispatch offer
 //   pickup_order    — simulate courier confirming pickup
 //   deliver_order   — simulate courier marking delivered
-//   cleanup         — delete all sim_ prefixed test data
+//   cleanup         — delete all [SIM] prefixed test data
 // =============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -22,6 +22,9 @@ const SIM_LOCATIONS = {
   dropoff:  { lat: -8.6620, lng: 116.1350, label: 'Jl. Raya Karang Bongkot No. 5' },
 }
 
+// Prefix used to identify simulation records for cleanup
+const SIM_PREFIX = '[SIM]'
+
 export async function POST(req: NextRequest) {
   try {
     const { action, order_id, courier_id } = await req.json()
@@ -30,14 +33,15 @@ export async function POST(req: NextRequest) {
 
       // ── 1. Create a simulation courier ─────────────────────────────────────
       case 'setup_courier': {
-        // Create user row first
+        // Generate a unique phone so UNIQUE constraint doesn't fail on re-runs
+        const simPhone = '62800' + Date.now().toString().slice(-8)
+
         const { data: user, error: uErr } = await supabaseAdmin
           .from('users')
           .insert({
-            name:  'Sim Kurir Budi',
-            phone: '628' + Math.floor(100000000 + Math.random() * 900000000),
+            name:  `${SIM_PREFIX} Kurir Budi`,
+            phone: simPhone,
             role:  'courier',
-            email: `sim_courier_${Date.now()}@girigo.sim`,
           })
           .select()
           .single()
@@ -46,22 +50,20 @@ export async function POST(req: NextRequest) {
         const { data: courier, error: cErr } = await supabaseAdmin
           .from('couriers')
           .insert({
-            user_id:         user.id,
-            vehicle_type:    'motor',
-            vehicle_plate:   'DR SIM 001',
-            status:          'online',
-            current_lat:     SIM_LOCATIONS.courier.lat,
-            current_lng:     SIM_LOCATIONS.courier.lng,
+            user_id:          user.id,
+            vehicle_type:     'motorcycle',
+            status:           'online',
+            current_lat:      SIM_LOCATIONS.courier.lat,
+            current_lng:      SIM_LOCATIONS.courier.lng,
             location_updated: new Date().toISOString(),
-            rating:          4.8,
-            zone:            'Gerung Kota',
+            rating:           4.80,
           })
           .select()
           .single()
         if (cErr) return err(cErr.message)
 
         return NextResponse.json({
-          ok: true,
+          ok:         true,
           courier_id: courier.id,
           user_id:    user.id,
           message:    `Kurir simulasi "${user.name}" dibuat dan sedang Online di ${SIM_LOCATIONS.courier.label}`,
@@ -70,52 +72,52 @@ export async function POST(req: NextRequest) {
 
       // ── 2. Create a simulation order ────────────────────────────────────────
       case 'create_order': {
-        // Create customer
+        const simPhone = '62811' + Date.now().toString().slice(-8)
+
         const { data: customer, error: cuErr } = await supabaseAdmin
           .from('users')
           .insert({
-            name:  'Sim Customer Dewi',
-            phone: '628' + Math.floor(100000000 + Math.random() * 900000000),
+            name:  `${SIM_PREFIX} Customer Dewi`,
+            phone: simPhone,
             role:  'customer',
-            email: `sim_customer_${Date.now()}@girigo.sim`,
           })
           .select()
           .single()
         if (cuErr) return err(cuErr.message)
 
         const distKm  = haversineKm(
-          SIM_LOCATIONS.pickup.lat, SIM_LOCATIONS.pickup.lng,
-          SIM_LOCATIONS.dropoff.lat, SIM_LOCATIONS.dropoff.lng
+          SIM_LOCATIONS.pickup.lat,  SIM_LOCATIONS.pickup.lng,
+          SIM_LOCATIONS.dropoff.lat, SIM_LOCATIONS.dropoff.lng,
         )
         const pricing = calculatePrice(distKm, 1.5)
 
         const { data: order, error: oErr } = await supabaseAdmin
           .from('orders')
           .insert({
-            customer_id:     customer.id,
-            pickup_address:  SIM_LOCATIONS.pickup.label,
-            pickup_lat:      SIM_LOCATIONS.pickup.lat,
-            pickup_lng:      SIM_LOCATIONS.pickup.lng,
-            dropoff_address: SIM_LOCATIONS.dropoff.label,
-            dropoff_lat:     SIM_LOCATIONS.dropoff.lat,
-            dropoff_lng:     SIM_LOCATIONS.dropoff.lng,
-            item_type:       'Makanan & Minuman',
-            item_weight_kg:  1.5,
-            distance_km:     Math.round(distKm * 100) / 100,
-            base_fee:        pricing.base_fee,
+            customer_id:      customer.id,
+            pickup_address:   SIM_LOCATIONS.pickup.label,
+            pickup_lat:       SIM_LOCATIONS.pickup.lat,
+            pickup_lng:       SIM_LOCATIONS.pickup.lng,
+            dropoff_address:  SIM_LOCATIONS.dropoff.label,
+            dropoff_lat:      SIM_LOCATIONS.dropoff.lat,
+            dropoff_lng:      SIM_LOCATIONS.dropoff.lng,
+            item_type:        'Makanan & Minuman',
+            item_weight_kg:   1.5,
+            distance_km:      Math.round(distKm * 100) / 100,
+            base_fee:         pricing.base_fee,
             weight_surcharge: pricing.weight_surcharge,
-            delivery_fee:    pricing.delivery_fee,
-            package_value:   0,
-            payment_method:  'cod',
-            status:          'pending',
-            notes:           '[SIMULASI] Order demo untuk testing',
+            delivery_fee:     pricing.delivery_fee,
+            package_value:    0,
+            payment_method:   'cod',
+            status:           'pending',
+            notes:            `${SIM_PREFIX} Order demo untuk testing`,
           })
           .select()
           .single()
         if (oErr) return err(oErr.message)
 
         return NextResponse.json({
-          ok: true,
+          ok:          true,
           order_id:    order.id,
           order_code:  order.order_code,
           customer_id: customer.id,
@@ -123,7 +125,7 @@ export async function POST(req: NextRequest) {
           distance_km: Math.round(distKm * 100) / 100,
           pickup:      SIM_LOCATIONS.pickup.label,
           dropoff:     SIM_LOCATIONS.dropoff.label,
-          message:     `Order ${order.order_code} dibuat — Rp ${pricing.delivery_fee.toLocaleString('id-ID')} (${Math.round(distKm * 100) / 100} km)`,
+          message:     `Order ${order.order_code} dibuat — Rp ${pricing.delivery_fee.toLocaleString('id-ID')} (${Math.round(distKm * 100) / 100} km, COD)`,
         })
       }
 
@@ -131,7 +133,6 @@ export async function POST(req: NextRequest) {
       case 'accept_order': {
         if (!order_id || !courier_id) return err('order_id and courier_id required')
 
-        // Mark order as assigned, link courier
         const { data: order, error: oErr } = await supabaseAdmin
           .from('orders')
           .update({
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest) {
         const { data: order, error: oErr } = await supabaseAdmin
           .from('orders')
           .update({
-            status:      'picked_up',
+            status:       'picked_up',
             picked_up_at: new Date().toISOString(),
           })
           .eq('id', order_id)
@@ -171,7 +172,7 @@ export async function POST(req: NextRequest) {
           .single()
         if (oErr) return err(oErr.message)
 
-        // Simulate courier GPS moving toward dropoff
+        // Move courier GPS to midpoint between pickup and dropoff
         if (courier_id) {
           await supabaseAdmin
             .from('couriers')
@@ -204,53 +205,61 @@ export async function POST(req: NextRequest) {
           .single()
         if (oErr) return err(oErr.message)
 
-        // Return courier to online + move GPS to dropoff area
+        // Return courier to online at dropoff position
         if (courier_id) {
           await supabaseAdmin
             .from('couriers')
             .update({
-              status:          'online',
-              current_lat:     SIM_LOCATIONS.dropoff.lat,
-              current_lng:     SIM_LOCATIONS.dropoff.lng,
+              status:           'online',
+              current_lat:      SIM_LOCATIONS.dropoff.lat,
+              current_lng:      SIM_LOCATIONS.dropoff.lng,
               location_updated: new Date().toISOString(),
             })
             .eq('id', courier_id)
         }
 
-        // Ledger is created by DB trigger on delivered — just return result
         return NextResponse.json({
-          ok:          true,
-          courier_earn: Math.round(order.delivery_fee * 0.85),
+          ok:            true,
+          courier_earn:  Math.round(order.delivery_fee * 0.85),
           platform_earn: Math.round(order.delivery_fee * 0.15),
-          message:     `🎉 Terkirim! Order ${order.order_code} selesai. Ledger otomatis dibuat oleh DB trigger.`,
+          message:       `🎉 Terkirim! Order ${order.order_code} selesai. Ledger 85/15 dibuat otomatis oleh DB trigger.`,
         })
       }
 
       // ── 6. Cleanup ──────────────────────────────────────────────────────────
       case 'cleanup': {
+        // Find all sim users by name prefix
         const { data: simUsers } = await supabaseAdmin
           .from('users')
-          .select('id')
-          .like('email', '%@girigo.sim')
+          .select('id, role')
+          .like('name', `${SIM_PREFIX}%`)
 
-        const simUserIds = (simUsers ?? []).map(u => u.id)
-
-        if (simUserIds.length === 0) {
+        if (!simUsers || simUsers.length === 0) {
           return NextResponse.json({ ok: true, message: 'Tidak ada data simulasi untuk dihapus.' })
         }
 
-        // Delete orders placed by sim customers
-        const { data: simCouriers } = await supabaseAdmin
-          .from('couriers')
-          .select('id')
-          .in('user_id', simUserIds)
-        const simCourierIds = (simCouriers ?? []).map(c => c.id)
+        const simUserIds     = simUsers.map(u => u.id)
+        const simCourierUsers = simUsers.filter(u => u.role === 'courier').map(u => u.id)
 
+        // Find courier IDs for sim couriers
+        let simCourierIds: string[] = []
+        if (simCourierUsers.length > 0) {
+          const { data: simCouriers } = await supabaseAdmin
+            .from('couriers')
+            .select('id')
+            .in('user_id', simCourierUsers)
+          simCourierIds = (simCouriers ?? []).map(c => c.id)
+        }
+
+        // Delete orders linked to sim couriers or sim customers
+        const customerIds = simUsers.filter(u => u.role === 'customer').map(u => u.id)
+        if (customerIds.length > 0) {
+          await supabaseAdmin.from('orders').delete().in('customer_id', customerIds)
+        }
         if (simCourierIds.length > 0) {
           await supabaseAdmin.from('orders').delete().in('courier_id', simCourierIds)
+          await supabaseAdmin.from('couriers').delete().in('id', simCourierIds)
         }
-        await supabaseAdmin.from('orders').delete().in('customer_id', simUserIds)
-        await supabaseAdmin.from('couriers').delete().in('user_id', simUserIds)
         await supabaseAdmin.from('users').delete().in('id', simUserIds)
 
         return NextResponse.json({
