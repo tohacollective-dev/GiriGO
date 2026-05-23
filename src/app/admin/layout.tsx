@@ -3,16 +3,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Package, Users, BarChart2,
-  AlertTriangle, MapPin, LogOut
+  AlertTriangle, MapPin, Map, LogOut
 } from 'lucide-react'
 
 const nav = [
-  { href: '/admin',            label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/admin/orders',     label: 'Orders',     icon: Package },
-  { href: '/admin/couriers',   label: 'Couriers',   icon: Users },
-  { href: '/admin/analytics',  label: 'Analytics',  icon: BarChart2 },
-  { href: '/admin/exceptions', label: 'Exceptions', icon: AlertTriangle },
-  { href: '/admin/zones',      label: 'Zones',      icon: MapPin },
+  { href: '/admin',            label: 'Dashboard',  icon: LayoutDashboard, badge: null },
+  { href: '/admin/map',        label: 'Live Map',   icon: Map,             badge: 'LIVE' },
+  { href: '/admin/orders',     label: 'Orders',     icon: Package,         badge: null },
+  { href: '/admin/couriers',   label: 'Couriers',   icon: Users,           badge: null },
+  { href: '/admin/analytics',  label: 'Analytics',  icon: BarChart2,       badge: null },
+  { href: '/admin/exceptions', label: 'Exceptions', icon: AlertTriangle,   badge: null },
+  { href: '/admin/zones',      label: 'Zones',      icon: MapPin,          badge: null },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {nav.map(({ href, label, icon: Icon }) => {
+          {nav.map(({ href, label, icon: Icon, badge }) => {
             const active = path === href || (href !== '/admin' && path.startsWith(href))
             return (
               <Link
@@ -41,7 +42,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }`}
               >
                 <Icon size={18} />
-                {label}
+                <span className="flex-1">{label}</span>
+                {badge && (
+                  <span className="text-[9px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-full tracking-wide animate-pulse">
+                    {badge}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -55,8 +61,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      {/* Main content — map page needs overflow-hidden, others scroll */}
+      <main className={`flex-1 ${path === '/admin/map' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
         {children}
       </main>
     </div>
