@@ -43,6 +43,7 @@ const config: Config = {
         'card':     '0 1px 3px rgba(0,0,0,0.08)',
         'card-hover': '0 4px 12px rgba(0,0,0,0.12)',
         'btn':      '0 1px 2px rgba(37,99,235,0.2)',
+        'toast':    '0 8px 24px rgba(15,23,42,0.16)',
       },
       keyframes: {
         shimmer: {

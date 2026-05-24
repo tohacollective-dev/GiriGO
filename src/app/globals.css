@@ -116,12 +116,7 @@
     @apply text-white/60 hover:bg-white/10 hover:text-white;
   }
 
-  /* ── Toast ────────────────────────────────────────────────────────────── */
-  .toast {
-    @apply fixed top-5 right-5 z-[9999] flex items-start gap-3
-           bg-white rounded-xl shadow-xl border p-4 min-w-[300px] max-w-sm
-           animate-slide-in;
-  }
+  /* ── Toast (rendered inline, no .toast class needed) ─────────────────── */
 
   /* ── Supergraphic overlay ─────────────────────────────────────────────── */
   .supergraphic-overlay {
