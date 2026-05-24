@@ -4,445 +4,708 @@ const WA_NUMBER  = '6281234567890'
 const WA_MESSAGE = encodeURIComponent('Halo GiriGo! Saya ingin kirim paket.')
 const WA_LINK    = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`
 
-function WaIcon({ cls = 'w-5 h-5' }: { cls?: string }) {
+// ─── Brand & icon primitives ──────────────────────────────────────────────────
+
+function BrandMark({ size = 36 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 24 24" className={cls} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden>
+      <circle cx="32" cy="32" r="18" stroke="#2563EB" strokeWidth="3"/>
+      <circle cx="32" cy="32" r="6" fill="#FACC15"/>
+      <rect x="30" y="3"  width="4" height="10" rx="1.5" fill="#2563EB"/>
+      <rect x="30" y="51" width="4" height="10" rx="1.5" fill="#2563EB"/>
+      <rect x="3"  y="30" width="10" height="4" rx="1.5" fill="#2563EB"/>
+      <rect x="51" y="30" width="10" height="4" rx="1.5" fill="#2563EB"/>
     </svg>
   )
 }
 
-function StarIcon() {
+function ScooterGlyph({ size = 28, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
+      <circle cx="7"  cy="24" r="4" stroke={color} strokeWidth="2"/>
+      <circle cx="24" cy="24" r="4" stroke={color} strokeWidth="2"/>
+      <path d="M7 24L13 14H22L24 24"   stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13 14L11 8H8"          stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M22 14V10"              stroke={color} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   )
 }
 
-const MARQUEE_ITEMS = [
-  '🛵 Kurir Terverifikasi',
-  '📦 Semua Jenis Paket',
-  '⚡ Respon < 60 Detik',
-  '💳 COD & Transfer',
-  '📸 Foto Bukti Kirim',
-  '🗺️ Seluruh Area Gerung',
-  '🤖 Bot 24 Jam',
-  '⭐ Rating Kurir Transparan',
-]
+function WaIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  )
+}
 
-const STATS = [
-  { num: '< 3', unit: 'mnt', label: 'Rata-rata respon\nkurir terdekat' },
-  { num: '15',  unit: 'km',  label: 'Jangkauan area\noperasional' },
-  { num: '24',  unit: '/7',  label: 'WhatsApp bot\nsiap melayani' },
-  { num: '85',  unit: '%',   label: 'Bagian pendapatan\nlangsung ke kurir' },
-]
+// ─── Route-grid SVG background (hero + CTA) ───────────────────────────────────
 
-const TESTIMONIALS = [
-  {
-    text: 'Cepat banget! Kirim makanan dari warung saya sampai dalam 15 menit. Harga juga transparan, langsung tahu ongkirnya sebelum konfirmasi.',
-    name: 'Ibu Sari',
-    area: 'Gerung Kota',
-    init: 'S',
-    cls: '',
-  },
-  {
-    text: 'Gampang banget, tinggal WhatsApp langsung ada kurir. Nggak perlu install aplikasi tambahan. Cocok buat UMKM kayak saya.',
-    name: 'Pak Hendra',
-    area: 'Giri Menang',
-    init: 'H',
-    cls: 'alt-1',
-  },
-  {
-    text: 'Sudah pakai GiriGo tiap hari buat kirim dokumen kantor. Foto bukti pengiriman selalu dikirim otomatis — nggak pernah ada complain.',
-    name: 'Bu Dewi',
-    area: 'Dasan Baru',
-    init: 'D',
-    cls: 'alt-2',
-  },
-]
+function RouteGrid() {
+  const nodes: [number, number, string, number][] = [
+    [200, 80, '#2563EB', 0], [1000, 80, '#FACC15', .8],
+    [200, 720, '#FACC15', 1.6], [1000, 720, '#2563EB', 2.4],
+    [0, 400, '#2563EB', .4], [1200, 400, '#FACC15', 1.2],
+    [600, 0, '#2563EB', 2.0], [600, 800, '#FACC15', 2.8],
+    [300, 320, '#FACC15', .6], [900, 480, '#2563EB', 1.4],
+  ]
+  return (
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice"
+      style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity:.55, pointerEvents:'none' }}
+      aria-hidden>
+      <defs>
+        <linearGradient id="rg-trail" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stopColor="#2563EB" stopOpacity="0"/>
+          <stop offset="60%"  stopColor="#2563EB" stopOpacity=".8"/>
+          <stop offset="100%" stopColor="#FACC15" stopOpacity="1"/>
+        </linearGradient>
+        <linearGradient id="rg-trail-2" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stopColor="#FACC15" stopOpacity="0"/>
+          <stop offset="100%" stopColor="#FACC15" stopOpacity=".8"/>
+        </linearGradient>
+      </defs>
+      {/* Central roundabout */}
+      <g transform="translate(600 400)">
+        <circle r="120" fill="none" stroke="#fff" strokeOpacity=".25" strokeWidth="1.5"/>
+        <circle r="80"  fill="none" stroke="#fff" strokeOpacity=".15" strokeWidth="1"/>
+        <circle r="40"  fill="none" stroke="#2563EB" strokeOpacity=".55" strokeWidth="1.5"/>
+        <circle r="6"   fill="#FACC15"/>
+      </g>
+      {/* Cardinal spokes */}
+      <line x1="600" y1="0"   x2="600" y2="280"  stroke="#fff" strokeOpacity=".18" strokeWidth="1.5"/>
+      <line x1="600" y1="520" x2="600" y2="800"  stroke="#fff" strokeOpacity=".18" strokeWidth="1.5"/>
+      <line x1="0"   y1="400" x2="480" y2="400"  stroke="#fff" strokeOpacity=".18" strokeWidth="1.5"/>
+      <line x1="720" y1="400" x2="1200" y2="400" stroke="#fff" strokeOpacity=".18" strokeWidth="1.5"/>
+      {/* Diagonal spokes */}
+      <line x1="515" y1="315" x2="200"  y2="80"  stroke="#fff" strokeOpacity=".10" strokeWidth="1"/>
+      <line x1="685" y1="315" x2="1000" y2="80"  stroke="#fff" strokeOpacity=".10" strokeWidth="1"/>
+      <line x1="515" y1="485" x2="200"  y2="720" stroke="#fff" strokeOpacity=".10" strokeWidth="1"/>
+      <line x1="685" y1="485" x2="1000" y2="720" stroke="#fff" strokeOpacity=".10" strokeWidth="1"/>
+      {/* Grid */}
+      {[120,240,560,680].map(y => <line key={y} x1="0" y1={y} x2="1200" y2={y} stroke="#fff" strokeOpacity=".05" strokeWidth="1"/>)}
+      {[150,300,900,1050].map(x => <line key={x} x1={x} y1="0" x2={x} y2="800" stroke="#fff" strokeOpacity=".05" strokeWidth="1"/>)}
+      {/* Animated trails */}
+      <path d="M 100 400 L 480 400"  stroke="url(#rg-trail)"   strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="80 380"  style={{animation:'trailSweep 3.6s linear infinite'}}/>
+      <path d="M 720 400 L 1100 400" stroke="url(#rg-trail-2)" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="60 380"  style={{animation:'trailSweep 3.6s 1.4s linear infinite'}}/>
+      <path d="M 600 100 L 600 280"  stroke="url(#rg-trail-2)" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="40 200"  style={{animation:'trailSweep 2.4s .6s linear infinite'}}/>
+      {/* Pulsing nodes */}
+      {nodes.map(([x,y,c,d],i) => (
+        <g key={i} transform={`translate(${x} ${y})`}>
+          <circle r="3" fill={c}/>
+          <circle r="3" fill={c} style={{transformOrigin:'center', animation:`gridPulse 2.6s ${d}s infinite cubic-bezier(0,0,.2,1)`}}/>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// ─── Page component ───────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <div style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}>
+    <div style={{ fontFamily:"'Poppins', system-ui, sans-serif", color:'var(--ink)', background:'var(--white)' }}>
 
-      {/* ── Nav ── */}
-      <nav className="lp-nav">
-        <div className="lp-container">
-          <div className="lp-nav-inner">
-            <div className="lp-brand">
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className="brand-mark" aria-hidden>
-                <rect width="36" height="36" rx="10" fill="#0F172A"/>
-                <text x="18" y="25" textAnchor="middle" fontSize="20" fill="#FACC15">🛵</text>
-              </svg>
-              <span className="lp-brand-text">GiriGo</span>
-              <span className="lp-brand-sub hidden sm:inline">Courier</span>
-            </div>
+      {/* ══ NAV ══════════════════════════════════════════════════════════════ */}
+      <header className="nav">
+        <div className="lp-container nav-inner">
+          <a href="#" className="brand">
+            <BrandMark size={36}/>
+            <span className="brand-text">GiriGo</span>
+            <span className="brand-sub">Courier</span>
+          </a>
 
-            <nav className="lp-nav-links" aria-label="Primary">
-              <Link href="/tracking" className="lp-nav-link">Lacak Paket</Link>
-              <a href="#tarif" className="lp-nav-link">Tarif</a>
-              <a href="#cara-pakai" className="lp-nav-link">Cara Pakai</a>
-            </nav>
+          <nav className="nav-links" aria-label="Primary">
+            <a href="#fitur"   className="nav-link">Fitur</a>
+            <a href="#cara"    className="nav-link">Cara Pakai</a>
+            <a href="#tarif"   className="nav-link">Tarif</a>
+            <a href="#liputan" className="nav-link">Area</a>
+          </nav>
 
-            <div className="lp-nav-actions">
-              <Link href="/tracking" className="lp-btn lp-btn-ghost lp-btn-sm hidden sm:inline-flex">
-                Lacak Paket
-              </Link>
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="lp-btn btn-wa lp-btn-sm">
-                <WaIcon cls="w-4 h-4" />
-                Kirim Sekarang
-              </a>
-            </div>
+          <div className="nav-actions">
+            <Link href="/tracking" className="nav-link" style={{gap:6}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              Lacak Paket
+            </Link>
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="btn btn-yellow btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+              Kirim Sekarang
+            </a>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* ── Marquee ── */}
-      <div className="lp-marquee" aria-hidden>
+      {/* ══ MARQUEE ══════════════════════════════════════════════════════════ */}
+      <div className="marquee" aria-hidden>
         <div className="track">
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
-            <span key={i}>
-              {item}
-              <span className="sep">·</span>
-            </span>
+          {[
+            '⚡ Rata-rata pickup 8 menit',
+            '📍 Beroperasi 24 jam',
+            '✅ Setiap kurir terverifikasi',
+            '📦 Dokumen · Makanan · Paket',
+            '🗺 Gerung · Giri Menang · Dasan Baru',
+            '💳 COD & Transfer tersedia',
+            '⚡ Rata-rata pickup 8 menit',
+            '📍 Beroperasi 24 jam',
+            '✅ Setiap kurir terverifikasi',
+            '📦 Dokumen · Makanan · Paket',
+            '🗺 Gerung · Giri Menang · Dasan Baru',
+            '💳 COD & Transfer tersedia',
+          ].map((item, i) => (
+            <span key={i}>{item}<span className="sep">◆</span></span>
           ))}
         </div>
       </div>
 
-      {/* ── Hero ── */}
-      <section className="lp-hero">
-        {/* Decorative route grid */}
-        <div className="lp-hero-bg" aria-hidden>
-          <svg width="100%" height="100%" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            {/* Horizontal grid lines */}
-            {[100, 200, 300, 400, 500].map(y => (
-              <line key={y} x1="0" y1={y} x2="1200" y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>
-            ))}
-            {/* Vertical grid lines */}
-            {[150, 300, 450, 600, 750, 900, 1050].map(x => (
-              <line key={x} x1={x} y1="0" x2={x} y2="600" stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>
-            ))}
-            {/* Animated route path */}
-            <path d="M 150 300 Q 400 100 600 250 T 1050 200"
-              stroke="rgba(37,99,235,0.3)" strokeWidth="2" fill="none"
-              strokeDasharray="8 6"
-              style={{ animation: 'trailSweep 3s linear infinite' }}/>
-            {/* Pulse dots */}
-            {[{cx:150,cy:300},{cx:600,cy:250},{cx:1050,cy:200}].map((p,i) => (
-              <g key={i}>
-                <circle cx={p.cx} cy={p.cy} r="5" fill="rgba(250,204,21,0.8)"/>
-                <circle cx={p.cx} cy={p.cy} r="5" fill="rgba(250,204,21,0.3)"
-                  style={{ animation: `gridPulse 2.4s ${i * 0.8}s ease-out infinite` }}/>
-              </g>
-            ))}
-          </svg>
-        </div>
+      {/* ══ HERO ═════════════════════════════════════════════════════════════ */}
+      <section className="hero section">
+        <div className="hero-bg"><RouteGrid/></div>
 
-        <div className="lp-container">
-          <div className="lp-hero-grid">
-            {/* Left copy */}
-            <div>
-              <div className="chip chip-dark">
-                <span className="live-dot" />
-                Beroperasi di Kecamatan Gerung
+        <div className="lp-container hero-grid">
+          {/* Left copy */}
+          <div>
+            <div className="chip chip-dark">
+              <span className="live-dot"/> Beroperasi di Kecamatan Gerung, Lombok Barat
+            </div>
+
+            <h1>
+              Kurir Cepat<br/>
+              Berbasis <span className="accent">WhatsApp</span>
+            </h1>
+
+            <p className="hero-lede">
+              Pesan antar-jemput paket hanya lewat WhatsApp.
+              Tidak perlu aplikasi, tidak perlu daftar. Langsung kirim dalam hitungan menit.
+            </p>
+
+            <div className="hero-ctas">
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="btn btn-yellow btn-lg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+                Kirim Sekarang
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <Link href="/tracking" className="btn btn-ghost-dark btn-lg">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
+                Lacak Paket
+              </Link>
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
+                className="chip chip-dark"
+                style={{padding:'12px 14px', borderRadius:12, fontSize:13, border:'1px dashed rgba(255,255,255,.2)'}}>
+                <WaIcon size={14}/> Tersedia via WhatsApp
+              </a>
+            </div>
+
+            <div className="hero-meta">
+              {[
+                { v:'8',  unit:'mnt', k:'Rata-rata pickup' },
+                { v:'24', unit:'/7',  k:'Operasional' },
+                { v:'12', unit:'kurir', k:'Online sekarang' },
+              ].map(s => (
+                <div key={s.k}>
+                  <div className="num">{s.v}<span className="unit">{s.unit}</span></div>
+                  <div className="label">{s.k}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: WhatsApp chat preview */}
+          <div style={{position:'relative'}}>
+            {/* Floating chip top-left */}
+            <div className="order-chip">
+              <div className="ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
               </div>
-
-              <h1>
-                Kurir Cepat<br />
-                Berbasis <span className="accent">WhatsApp</span>
-              </h1>
-
-              <p className="lp-hero-lede">
-                Pesan antar-jemput paket hanya lewat WhatsApp.
-                Tidak perlu aplikasi, tidak perlu daftar. Langsung kirim dalam hitungan menit.
-              </p>
-
-              <div className="lp-hero-ctas">
-                <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                  className="lp-btn btn-wa lp-btn-lg">
-                  <WaIcon />
-                  Chat WhatsApp Sekarang
-                </a>
-                <Link href="/tracking" className="lp-btn btn-ghost-dark lp-btn-lg">
-                  Lacak Paket
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </Link>
-              </div>
-
-              <div className="lp-hero-meta">
-                {STATS.map(s => (
-                  <div key={s.label}>
-                    <div className="num">{s.num}<span className="unit">{s.unit}</span></div>
-                    <div className="label" style={{ whiteSpace: 'pre-line' }}>{s.label}</div>
-                  </div>
-                ))}
+              <div className="meta">
+                <div className="t">Order #GG-2847</div>
+                <div className="s">Picked up · 2 mnt yang lalu</div>
               </div>
             </div>
 
-            {/* Right: WhatsApp chat preview */}
-            <div style={{ position: 'relative' }}>
-              {/* Floating order chip top-left */}
-              <div className="order-chip">
-                <div className="ic">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-                <div className="meta">
-                  <div className="t">GG-250524-007</div>
-                  <div className="s">Diterima · Giri Menang</div>
-                </div>
-              </div>
-
-              {/* Chat frame */}
-              <div className="chat-frame">
-                <div className="chat-screen">
-                  {/* Header */}
-                  <div className="chat-header">
-                    <div className="chat-avatar">
-                      <span style={{ fontSize: 18 }}>🛵</span>
-                    </div>
-                    <div>
-                      <div className="chat-name">GiriGo Courier</div>
-                      <div className="chat-status">
-                        <span className="live-dot" />
-                        online
-                      </div>
-                    </div>
-                    <div className="chat-actions">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.7 19.79 19.79 0 0 1 1.61 5.08 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <div className="chat-frame">
+              <div className="chat-screen">
+                <div className="chat-header">
+                  <div className="chat-avatar">
+                    <ScooterGlyph size={22} color="#FACC15"/>
+                  </div>
+                  <div>
+                    <div className="chat-name">GiriGo</div>
+                    <div className="chat-status">
+                      <span className="live-dot"/> bot online · membalas instan
                     </div>
                   </div>
-
-                  {/* Chat body */}
-                  <div className="chat-body">
-                    <div className="chat-day">Hari ini</div>
-
-                    <div className="bubble out">
-                      Halo! Saya mau kirim paket 🛵
-                      <span className="time">09:12</span>
-                    </div>
-
-                    <div className="bubble in" style={{ animationDelay: '.15s' }}>
-                      <span className="b-title">🛵 Halo! Selamat datang di GiriGo.</span>{'\n\n'}
-                      Silakan isi detail pengiriman:{'\n'}
-                      • 📍 Lokasi jemput{'\n'}
-                      • 📍 Tujuan pengiriman{'\n'}
-                      • 📦 Jenis & berat barang{'\n'}
-                      • 💳 COD atau Transfer?
-                      <span className="time">09:12</span>
-                    </div>
-
-                    <div className="bubble out" style={{ animationDelay: '.3s' }}>
-                      Jemput: Giri Menang Square{'\n'}
-                      Tujuan: Dasan Baru, Gerung{'\n'}
-                      Barang: Dokumen, ~500g{'\n'}
-                      Bayar: Transfer
-                      <span className="time">09:13</span>
-                    </div>
-
-                    <div className="bubble in" style={{ animationDelay: '.5s' }}>
-                      <span className="b-title">✅ Konfirmasi Order</span>{'\n'}
-                      <div className="b-row"><span className="k">Jarak</span><span className="v">3.2 km</span></div>
-                      <div className="b-row"><span className="k">ETA</span><span className="v">~18 menit</span></div>
-                      <div className="b-row"><span className="k">Ongkir</span><span className="v">Rp 7.400</span></div>
-                      <div className="b-row"><span className="k">Bayar</span><span className="v">Transfer</span></div>
-                      <div className="b-cta">
-                        <span className="mini">✅ YA, KONFIRMASI</span>
-                        <span className="mini" style={{ color: '#FF6B6B' }}>❌ BATALKAN</span>
-                      </div>
-                      <span className="time">09:13</span>
-                    </div>
-
-                    <div className="bubble out" style={{ animationDelay: '.7s' }}>
-                      YA, KONFIRMASI
-                      <span className="time">09:13</span>
-                    </div>
-
-                    <div className="bubble in" style={{ animationDelay: '.9s' }}>
-                      <span className="typing"><span /><span /><span /></span>
-                    </div>
+                  <div className="chat-actions">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.7 19.79 19.79 0 0 1 1.61 5.08 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 6h18M3 12h18M3 18h18"/></svg>
                   </div>
+                </div>
 
-                  {/* Input bar */}
-                  <div className="chat-input">
-                    <div className="pill">Tulis pesan...</div>
-                    <div className="send">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                <div className="chat-body">
+                  <div className="chat-day">HARI INI</div>
+
+                  <div className="bubble in">
+                    Halo! 👋 Saya bot <strong style={{color:'#FACC15'}}>GiriGo</strong>. Mau kirim paket ke mana hari ini?
+                    <span className="time">08:00</span>
+                  </div>
+                  <div className="bubble out" style={{animationDelay:'.4s'}}>
+                    Halo, kirim dokumen ke Giri Menang Square dong
+                    <span className="time">08:00</span>
+                  </div>
+                  <div className="bubble in bubble-card" style={{animationDelay:'1.4s', minWidth:252}}>
+                    <div className="b-title" style={{marginBottom:6}}>📍 Estimasi Order</div>
+                    <div className="b-row"><span className="k">Jarak</span><span className="v">3.2 km</span></div>
+                    <div className="b-row"><span className="k">ETA Pickup</span><span className="v">8 mnt</span></div>
+                    <div className="b-row"><span className="k">Ongkir</span><span className="v">Rp 11.400</span></div>
+                    <div className="b-cta">
+                      <span className="mini">✓ Konfirmasi</span>
+                      <span className="mini" style={{color:'#8696A0'}}>Batal</span>
                     </div>
+                    <span className="time">08:01</span>
+                  </div>
+                  <div className="bubble out" style={{animationDelay:'2.5s'}}>
+                    ✓ Konfirmasi
+                    <span className="time">08:01</span>
+                  </div>
+                  <div className="bubble in" style={{animationDelay:'3.4s'}}>
+                    <div className="b-title">🛵 Kurir Andi berangkat</div>
+                    <div style={{fontSize:13, color:'#8696A0', marginTop:4}}>Link tracking dikirim →</div>
+                    <span className="time">08:02</span>
+                  </div>
+                  <div className="bubble in" style={{background:'transparent', padding:'4px 12px', animationDelay:'4.4s'}}>
+                    <span className="typing"><span/><span/><span/></span>
+                  </div>
+                </div>
+
+                <div className="chat-input">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8696A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49"/></svg>
+                  <div className="pill">Ketik pesan…</div>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8696A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+                  <div className="send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Floating chip bottom-right */}
-              <div className="order-chip bottom">
-                <div className="ic">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </div>
-                <div className="meta">
-                  <div className="t">Terkirim!</div>
-                  <div className="s">Foto bukti dikirim</div>
-                </div>
+            {/* Floating chip bottom-right */}
+            <div className="order-chip bottom">
+              <div className="ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div className="meta">
+                <div className="t">Terkirim ✓</div>
+                <div className="s">Foto bukti dikirim</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Stats strip ── */}
-      <section className="band-dark">
+      {/* ══ STATS STRIP ══════════════════════════════════════════════════════ */}
+      <section className="band-dark" style={{padding:'64px 0 80px', background:'linear-gradient(180deg,#0F172A 0%,#131c34 100%)'}}>
         <div className="lp-container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}
-            className="stats-grid">
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:28, flexWrap:'wrap', gap:12}}>
+            <div className="chip chip-yellow">
+              <span className="live-dot" style={{background:'#FACC15'}}/> Dashboard publik · diperbarui realtime
+            </div>
+            <div style={{color:'rgba(255,255,255,.5)', fontSize:13}} className="mono">
+              GG · LIVE · {new Date().toLocaleDateString('id-ID')}
+            </div>
+          </div>
+
+          <div className="stats-sparkline">
             {[
-              { v: '< 3', u: 'mnt', k: 'Respon kurir' },
-              { v: '15',  u: 'km',  k: 'Jangkauan area' },
-              { v: '24',  u: '/7',  k: 'Bot aktif' },
-              { v: '85',  u: '%',   k: 'Bagian ke kurir' },
-            ].map(s => (
-              <div key={s.k} style={{ textAlign: 'center', padding: '24px 16px', borderRadius: '20px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '36px', fontWeight: 700, letterSpacing: '-.03em', color: '#fff', lineHeight: 1 }}>
-                  {s.v}<span style={{ fontSize: '16px', color: '#FACC15', fontWeight: 600, marginLeft: '3px' }}>{s.u}</span>
+              { k:'Order minggu ini',      v:'1,284', suf:'',      delta:'+18%', pos:true,  ic:'package', col:'#60A5FA', pts:[22,18,26,20,32,28,36,30,24,38] },
+              { k:'Rata-rata pickup',      v:'7.6',   suf:'mnt',   delta:'−12s', pos:true,  ic:'clock',   col:'#FACC15', pts:[20,24,18,28,22,16,14,18,12,10] },
+              { k:'Kurir aktif',           v:'12',    suf:'online',delta:'',     pos:false, ic:'route',   col:'#60A5FA', pts:[8,10,12,10,14,12,10,14,12,14] },
+              { k:'Tingkat keberhasilan',  v:'99.4',  suf:'%',     delta:'SLA',  pos:false, ic:'check',   col:'#4ADE80', pts:[28,30,30,28,32,30,32,28,30,32] },
+            ].map((s, i) => (
+              <div key={i} style={{
+                background:'rgba(255,255,255,.03)',
+                border:'1px solid rgba(255,255,255,.08)',
+                borderRadius:20,
+                padding:24,
+                position:'relative',
+                overflow:'hidden',
+              }}>
+                <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18}}>
+                  <span style={{
+                    width:38, height:38, borderRadius:10,
+                    background: i%2 ? 'rgba(250,204,21,.14)' : 'rgba(37,99,235,.18)',
+                    color: i%2 ? '#FACC15' : '#60A5FA',
+                    display:'grid', placeItems:'center',
+                  }}>
+                    {s.ic === 'package' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>}
+                    {s.ic === 'clock'   && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>}
+                    {s.ic === 'route'   && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 4-4V9"/></svg>}
+                    {s.ic === 'check'   && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>}
+                  </span>
+                  {s.delta && (
+                    <span style={{
+                      fontSize:11, fontWeight:700, padding:'4px 8px', borderRadius:99,
+                      background: s.pos ? 'rgba(34,197,94,.16)' : 'rgba(255,255,255,.06)',
+                      color: s.pos ? '#4ADE80' : 'rgba(255,255,255,.7)',
+                      letterSpacing:'.04em',
+                    }}>{s.delta}</span>
+                  )}
                 </div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '.08em' }}>{s.k}</div>
+                <div style={{fontSize:36, fontWeight:700, color:'#fff', letterSpacing:'-.02em', lineHeight:1}}>
+                  {s.v}
+                  {s.suf && <span style={{fontSize:16, color:'rgba(255,255,255,.55)', marginLeft:6, fontWeight:500}}>{s.suf}</span>}
+                </div>
+                <div style={{fontSize:13, color:'rgba(255,255,255,.55)', marginTop:10}}>{s.k}</div>
+                {/* Sparkline */}
+                <svg width="100%" height="32" viewBox="0 0 200 32" style={{marginTop:18, opacity:.75}}>
+                  <path
+                    d={`M 0 ${s.pts[0]} ${s.pts.map((p,j) => `L ${20*(j+1)} ${p}`).join(' ')}`}
+                    fill="none" stroke={s.col} strokeWidth="1.5" strokeLinecap="round" opacity=".9"
+                  />
+                </svg>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Features bento ── */}
+      {/* ══ FEATURES BENTO ═══════════════════════════════════════════════════ */}
       <section className="band-light" id="fitur">
         <div className="lp-container">
           <div className="section-head">
-            <div className="eyebrow"><span className="dot" />Kenapa GiriGo</div>
-            <h2>Dirancang untuk Warga Gerung</h2>
-            <p className="lede">Teknologi kurir modern yang benar-benar ngerti kebutuhan lokal — tanpa ribet, tanpa aplikasi tambahan.</p>
+            <div className="eyebrow"><span className="dot"/>Mengapa GiriGo</div>
+            <h2>Kenapa Pilih GiriGo?</h2>
+            <p className="lede">Kurir lokal yang ngerti area Gerung, ditenagai teknologi modern.</p>
           </div>
 
           <div className="bento">
-            {/* Feat 1: Speed */}
+            {/* Feat 1 — Speed */}
             <div className="card feat-1">
               <span className="num-tag">01</span>
-              <div className="ic" style={{ background: 'rgba(37,99,235,0.1)' }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <div className="ic" style={{background:'rgba(37,99,235,.10)', color:'var(--blue)'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
               </div>
-              <h3>Cepat & Real-Time</h3>
-              <p>Kurir terdekat dijemput otomatis dalam hitungan detik. Tracking posisi langsung lewat WhatsApp — tidak ada aplikasi tambahan.</p>
+              <h3>Cepat &amp; Real-Time</h3>
+              <p>Kurir dijemput otomatis dalam hitungan menit. Track posisi langsung dari WhatsApp.</p>
               <div className="live-stat-row">
                 <div className="live-stat">
-                  <div className="v">2.4<span className="unit">mnt</span></div>
-                  <div className="k">Avg. dispatch</div>
+                  <div className="v">7.6<span className="unit">mnt</span></div>
+                  <div className="k">Avg pickup</div>
                 </div>
                 <div className="live-stat">
-                  <div className="v">98<span className="unit">%</span></div>
-                  <div className="k">On-time rate</div>
+                  <div className="v">14<span className="unit">mnt</span></div>
+                  <div className="k">Avg delivery</div>
                 </div>
                 <div className="live-stat">
-                  <div className="v">60<span className="unit">dtk</span></div>
-                  <div className="k">Acceptance window</div>
+                  <div className="v">99.4<span className="unit">%</span></div>
+                  <div className="k">On-time</div>
                 </div>
               </div>
-              {/* Animated bars */}
               <div className="viz-pulses">
-                <div className="bar" />
-                <div className="bar" />
-                <div className="bar" />
-                <div className="bar" />
-                <div className="bar" />
-                <div className="bar" />
+                {[0,1,2,3,4,5].map(i => <div key={i} className="bar"/>)}
               </div>
             </div>
 
-            {/* Feat 2: Coverage */}
+            {/* Feat 2 — Coverage */}
             <div className="card feat-2 coverage-card">
               <span className="num-tag">02</span>
               <div className="copy">
-                <div className="ic" style={{ background: 'rgba(250,204,21,0.12)' }}>
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <div className="ic" style={{background:'rgba(34,197,94,.10)', color:'#16A34A'}}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
                 </div>
                 <h3>Lokal Gerung</h3>
-                <p>Beroperasi di seluruh Kecamatan Gerung — dari Giri Menang Square hingga pelosok desa sekitar.</p>
+                <p>Kami beroperasi di seluruh Kecamatan Gerung — dari Giri Menang Square ke seluruh penjuru.</p>
+                <div style={{display:'flex', flexWrap:'wrap', gap:6, marginTop:20}}>
+                  {['Gerung Kota','Giri Menang','Dasan Baru','Banyu Urip','Beleke','Tempos'].map(t => (
+                    <span key={t} className="chip chip-light" style={{fontSize:11, padding:'4px 10px'}}>{t}</span>
+                  ))}
+                </div>
               </div>
-              {/* Map thumbnail */}
               <div className="map-thumb">
-                <svg width="100%" height="100%" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
-                  {/* Road grid */}
-                  <line x1="0" y1="150" x2="260" y2="150" stroke="rgba(37,99,235,0.2)" strokeWidth="2"/>
-                  <line x1="0" y1="100" x2="260" y2="100" stroke="rgba(37,99,235,0.1)" strokeWidth="1"/>
-                  <line x1="0" y1="200" x2="260" y2="200" stroke="rgba(37,99,235,0.1)" strokeWidth="1"/>
-                  <line x1="130" y1="0" x2="130" y2="300" stroke="rgba(37,99,235,0.2)" strokeWidth="2"/>
-                  <line x1="65" y1="0" x2="65" y2="300" stroke="rgba(37,99,235,0.1)" strokeWidth="1"/>
-                  <line x1="195" y1="0" x2="195" y2="300" stroke="rgba(37,99,235,0.1)" strokeWidth="1"/>
-                  {/* Coverage circle */}
-                  <circle cx="130" cy="150" r="80" fill="rgba(37,99,235,0.08)" stroke="rgba(37,99,235,0.2)" strokeWidth="1" strokeDasharray="6 4"/>
-                  {/* Pins */}
-                  <circle cx="130" cy="150" r="8" fill="#2563EB"/>
-                  <circle cx="130" cy="150" r="16" fill="rgba(37,99,235,0.2)"/>
-                  <circle cx="80" cy="110" r="5" fill="#FACC15"/>
-                  <circle cx="170" cy="130" r="5" fill="#FACC15"/>
-                  <circle cx="100" cy="185" r="5" fill="#FACC15"/>
-                  <circle cx="160" cy="185" r="5" fill="#22C55E"/>
+                <svg viewBox="0 0 240 280" preserveAspectRatio="none" style={{width:'100%', height:'100%'}}>
+                  <path d="M 0 80 Q 60 50 120 100 T 240 130"  stroke="#2563EB" strokeOpacity=".25" strokeWidth="1.5" fill="none"/>
+                  <path d="M 0 180 Q 80 220 160 190 T 240 220" stroke="#2563EB" strokeOpacity=".2"  strokeWidth="1.5" fill="none"/>
+                  <path d="M 40 0 Q 60 80 90 140 T 100 280"   stroke="#2563EB" strokeOpacity=".18" strokeWidth="1.5" fill="none"/>
+                  <circle cx="120" cy="140" r="32" stroke="#FACC15" strokeOpacity=".7" strokeWidth="1.5" fill="none"/>
+                  <circle cx="120" cy="140" r="18" stroke="#2563EB" strokeOpacity=".4" strokeWidth="1"   fill="none"/>
+                  <circle cx="120" cy="140" r="4" fill="#FACC15"/>
+                  <text x="126" y="135" fill="#475569" fontSize="8" fontFamily="'Poppins',sans-serif">Giri Menang</text>
+                  <circle cx="68" cy="100" r="5" fill="#2563EB" opacity=".7"/>
+                  <circle cx="175" cy="120" r="5" fill="#FACC15" opacity=".8"/>
+                  <circle cx="90" cy="185" r="5" fill="#FACC15" opacity=".7"/>
+                  <circle cx="162" cy="185" r="5" fill="#2563EB" opacity=".7"/>
                 </svg>
               </div>
             </div>
 
-            {/* Feat 3: All packages */}
+            {/* Feat 3 — Package types */}
             <div className="card feat-3">
               <span className="num-tag">03</span>
-              <div className="ic" style={{ background: 'rgba(139,92,246,0.1)' }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              <div className="ic" style={{background:'rgba(124,58,237,.10)', color:'#7C3AED'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
               </div>
               <h3>Semua Jenis Paket</h3>
-              <p>Dokumen, makanan, paket kecil hingga besar. Semua ditangani dengan hati-hati oleh kurir terverifikasi.</p>
+              <p>Dokumen, makanan, paket kecil hingga besar. COD &amp; Transfer tersedia.</p>
+              <div style={{display:'flex', gap:8, marginTop:18}}>
+                <span className="chip chip-light" style={{fontSize:11, padding:'4px 10px'}}>COD</span>
+                <span className="chip chip-light" style={{fontSize:11, padding:'4px 10px'}}>Transfer</span>
+                <span className="chip chip-light" style={{fontSize:11, padding:'4px 10px'}}>QRIS</span>
+              </div>
             </div>
 
-            {/* Feat 4: COD + Transfer */}
+            {/* Feat 4 — Trust */}
             <div className="card feat-4">
               <span className="num-tag">04</span>
-              <div className="ic" style={{ background: 'rgba(34,197,94,0.1)' }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              <div className="ic" style={{background:'rgba(245,158,11,.10)', color:'#D97706'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
               </div>
-              <h3>COD & Transfer</h3>
-              <p>Bayar tunai saat paket tiba (COD) atau transfer bank sebelum pengiriman. Fleksibel sesuai kebutuhan pelanggan.</p>
+              <h3>Aman &amp; Terpercaya</h3>
+              <p>Setiap kurir terverifikasi. Bukti pengiriman foto dikirim ke WhatsApp Anda.</p>
+              <div style={{display:'flex', gap:14, marginTop:18, alignItems:'center'}}>
+                <div style={{display:'flex'}}>
+                  {['A','B','D','M'].map((l,i) => (
+                    <div key={l} style={{
+                      width:28, height:28, borderRadius:99,
+                      background:['#0F172A','#2563EB','#FACC15','#1E293B'][i],
+                      color: i===2 ? '#0F172A' : '#fff',
+                      border:'2px solid #fff', marginLeft: i===0 ? 0 : -8,
+                      display:'grid', placeItems:'center', fontSize:11, fontWeight:700,
+                    }}>{l}</div>
+                  ))}
+                </div>
+                <div style={{fontSize:12, color:'var(--ink-2)'}}>
+                  <strong style={{color:'var(--navy)'}}>12 kurir</strong> terverifikasi
+                </div>
+              </div>
             </div>
 
-            {/* Feat 5: POD */}
+            {/* Feat 5 — Pricing */}
             <div className="card feat-5">
               <span className="num-tag">05</span>
-              <div className="ic" style={{ background: 'rgba(249,115,22,0.1)' }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <div className="ic" style={{background:'rgba(34,197,94,.10)', color:'#16A34A'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
               </div>
-              <h3>Foto Bukti Kirim</h3>
-              <p>Setiap pengiriman didokumentasikan. Foto bukti dikirim otomatis ke WhatsApp pengirim setelah paket diterima.</p>
+              <h3>Harga Transparan</h3>
+              <p>Estimasi ongkir &amp; ETA dikirim sebelum konfirmasi. Tidak ada biaya tersembunyi.</p>
+              <div style={{marginTop:18, padding:'12px 14px', background:'#F8FAFC', borderRadius:12, fontSize:13}}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, color:'var(--ink-2)', whiteSpace:'nowrap'}}>
+                  <span>Tarif mulai</span>
+                  <span style={{color:'var(--blue)', fontWeight:700}}>Rp 5.000</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── How it works ── */}
-      <section className="band-pale" id="cara-pakai">
+      {/* ══ COVERAGE SECTION ═════════════════════════════════════════════════ */}
+      <section className="band-pale" id="liputan">
+        <div className="lp-container">
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:40, alignItems:'end', marginBottom:56}}>
+            <div>
+              <div className="eyebrow"><span className="dot"/>Area Liputan</div>
+              <h2 style={{fontSize:'clamp(36px,4vw,52px)', letterSpacing:'-.03em', color:'var(--navy)', marginTop:16, textWrap:'balance' as never}}>
+                Sudah meliputi seluruh Kecamatan Gerung.
+              </h2>
+            </div>
+            <p style={{fontSize:17, color:'var(--ink-2)', lineHeight:1.55, margin:0}}>
+              Pusat operasi di Giri Menang Square dengan 12 kurir aktif menjangkau 6 desa utama, plus pengiriman antar-kota ke Mataram &amp; Lombok Barat.
+            </p>
+          </div>
+
+          <div className="coverage-section">
+            {/* Map panel */}
+            <div style={{position:'relative', minHeight:520, background:'linear-gradient(180deg,#F4F8FF,#E6EEFC)'}}>
+              <svg viewBox="0 0 600 520" preserveAspectRatio="none" style={{position:'absolute', inset:0, width:'100%', height:'100%'}}>
+                <defs>
+                  <pattern id="cov-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(37,99,235,.08)" strokeWidth="1"/>
+                  </pattern>
+                </defs>
+                <rect width="600" height="520" fill="url(#cov-grid)"/>
+                {/* Roads */}
+                <path d="M 0 220 Q 120 180 240 240 T 600 260"  stroke="rgba(37,99,235,.35)" strokeWidth="2" fill="none"/>
+                <path d="M 0 360 Q 160 410 320 380 T 600 410"  stroke="rgba(37,99,235,.25)" strokeWidth="2" fill="none"/>
+                <path d="M 220 0 Q 240 220 270 320 T 320 520"  stroke="rgba(37,99,235,.25)" strokeWidth="2" fill="none"/>
+                <path d="M 440 0 Q 410 180 380 320 T 420 520"  stroke="rgba(37,99,235,.2)"  strokeWidth="2" fill="none"/>
+                {/* Roundabout */}
+                <circle cx="240" cy="240" r="60" stroke="#FACC15" strokeOpacity=".6" strokeWidth="2" fill="rgba(250,204,21,.04)"/>
+                <circle cx="240" cy="240" r="34" stroke="#2563EB" strokeOpacity=".3" strokeWidth="1.5" fill="none"/>
+                <circle cx="240" cy="240" r="6"  fill="#FACC15"/>
+                <text x="264" y="244" fill="#0F172A" fontSize="10" fontWeight="600" fontFamily="'Poppins',sans-serif">Giri Menang Square</text>
+                {/* Coverage halo */}
+                <circle cx="240" cy="240" r="220" stroke="#FACC15" strokeOpacity=".22" strokeWidth="1.5" strokeDasharray="6 6" fill="none"/>
+                {/* Active route */}
+                <path d="M 460 80 Q 360 160 270 240 Q 200 320 150 380"
+                  stroke="#FACC15" strokeWidth="2.5" fill="none" strokeDasharray="6 5"
+                  style={{animation:'trailSweep 3s linear infinite'}}/>
+              </svg>
+
+              {/* Zone pins */}
+              {[
+                { name:'Gerung Kota',  s:'Pusat',     t:'42%', l:'38%', c:'#FACC15' },
+                { name:'Giri Menang',  s:'Aktif',     t:'32%', l:'60%', c:'#FACC15' },
+                { name:'Dasan Baru',   s:'Aktif',     t:'58%', l:'52%', c:'#FACC15' },
+                { name:'Banyu Urip',   s:'Aktif',     t:'46%', l:'74%', c:'#FACC15' },
+                { name:'Beleke',       s:'Aktif',     t:'68%', l:'28%', c:'#FACC15' },
+                { name:'Tempos',       s:'Aktif',     t:'22%', l:'40%', c:'#FACC15' },
+                { name:'Mataram',      s:'Antar-kota',t:'14%', l:'82%', c:'#2563EB' },
+              ].map(z => (
+                <div key={z.name} style={{position:'absolute', top:z.t, left:z.l, transform:'translate(-50%,-100%)'}}>
+                  <div style={{
+                    display:'flex', alignItems:'center', gap:6,
+                    background:'#fff', borderRadius:99, padding:'5px 10px 5px 6px',
+                    boxShadow:'0 8px 20px -8px rgba(15,23,42,.25)',
+                    border:'1px solid var(--line)',
+                    fontSize:12, fontWeight:600, color:'var(--navy)', whiteSpace:'nowrap',
+                  }}>
+                    <span style={{width:10, height:10, borderRadius:99, background:z.c, flexShrink:0}}/>
+                    {z.name}
+                  </div>
+                </div>
+              ))}
+
+              {/* Live badge */}
+              <div style={{
+                position:'absolute', left:20, bottom:20,
+                background:'rgba(15,23,42,.9)', color:'#fff',
+                padding:'12px 16px', borderRadius:14,
+                display:'flex', alignItems:'center', gap:12, fontSize:13,
+              }}>
+                <span className="live-dot"/>
+                <span><strong style={{color:'#FACC15'}}>12 kurir</strong> aktif sekarang</span>
+              </div>
+            </div>
+
+            {/* Zone list */}
+            <div style={{padding:32, display:'flex', flexDirection:'column', gap:8}}>
+              <div style={{fontSize:12, fontWeight:600, color:'var(--ink-3)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:12}}>
+                Daftar area
+              </div>
+              {[
+                { name:'Gerung Kota',  status:'Pusat',      c:'#FACC15' },
+                { name:'Giri Menang',  status:'Aktif',      c:'#FACC15' },
+                { name:'Dasan Baru',   status:'Aktif',      c:'#FACC15' },
+                { name:'Banyu Urip',   status:'Aktif',      c:'#FACC15' },
+                { name:'Beleke',       status:'Aktif',      c:'#FACC15' },
+                { name:'Tempos',       status:'Aktif',      c:'#FACC15' },
+                { name:'Mataram',      status:'Antar-kota', c:'#2563EB' },
+                { name:'Lombok Barat', status:'Antar-kota', c:'#2563EB' },
+              ].map((z, i, arr) => (
+                <div key={z.name} style={{
+                  display:'flex', alignItems:'center', justifyContent:'space-between',
+                  padding:'14px 4px',
+                  borderBottom: i===arr.length-1 ? 'none' : '1px solid var(--line-2)',
+                }}>
+                  <div style={{display:'flex', alignItems:'center', gap:12}}>
+                    <span style={{width:8, height:8, borderRadius:99, background:z.c}}/>
+                    <span style={{fontSize:15, fontWeight:500, color:'var(--navy)'}}>{z.name}</span>
+                  </div>
+                  <span style={{
+                    fontSize:11, fontWeight:600, padding:'4px 10px', borderRadius:99,
+                    background: z.status==='Pusat' ? 'rgba(250,204,21,.18)' : z.status==='Antar-kota' ? 'rgba(37,99,235,.10)' : 'rgba(34,197,94,.12)',
+                    color:       z.status==='Pusat' ? '#92760A'             : z.status==='Antar-kota' ? '#1D4ED8'             : '#16A34A',
+                  }}>{z.status}</span>
+                </div>
+              ))}
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
+                className="btn btn-ghost-light"
+                style={{marginTop:16, justifyContent:'space-between'}}>
+                Tanyakan ke kurir via WhatsApp
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ USE CASES ════════════════════════════════════════════════════════ */}
+      <section className="band-light" style={{paddingTop:40}}>
         <div className="lp-container">
           <div className="section-head">
-            <div className="eyebrow"><span className="dot" />Cara Pakai</div>
-            <h2>4 Langkah, Semua Lewat WhatsApp</h2>
-            <p className="lede">Tidak perlu install apapun. Cukup buka WhatsApp yang sudah ada di HP Anda.</p>
+            <div className="eyebrow"><span className="dot"/>Untuk Siapa</div>
+            <h2>Dari dokumen sampai dagangan, kami antar.</h2>
+            <p className="lede">Tiga jenis pengiriman paling populer di Gerung. Semua bisa dipesan dalam satu chat.</p>
+          </div>
+
+          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:24}}>
+            {/* Card 1 — Dokumen */}
+            <div className="uc-card">
+              <div style={{height:140, borderRadius:18, background:'rgba(37,99,235,.08)', marginBottom:24, position:'relative', overflow:'hidden', border:'1px solid rgba(37,99,235,.13)'}}>
+                <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid slice" style={{width:'100%', height:'100%'}}>
+                  <rect x="80"  y="20" width="80" height="100" rx="8" fill="#fff" stroke="#2563EB" strokeWidth="1.5" transform="rotate(-6 120 70)"/>
+                  <rect x="140" y="14" width="80" height="100" rx="8" fill="#fff" stroke="#2563EB" strokeWidth="1.5"/>
+                  <line x1="156" y1="36" x2="206" y2="36" stroke="#2563EB" strokeOpacity=".4" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="156" y1="48" x2="196" y2="48" stroke="#2563EB" strokeOpacity=".25" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="156" y1="60" x2="206" y2="60" stroke="#2563EB" strokeOpacity=".25" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="156" y1="72" x2="186" y2="72" stroke="#2563EB" strokeOpacity=".25" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="195" cy="98" r="14" fill="#2563EB" opacity=".15"/>
+                  <path d="M 188 98 L 193 103 L 202 92" stroke="#2563EB" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{width:44, height:44, borderRadius:12, background:'rgba(37,99,235,.08)', color:'#2563EB', display:'grid', placeItems:'center', marginBottom:18}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+              </div>
+              <h3 style={{fontSize:22, color:'var(--navy)', marginBottom:10, letterSpacing:'-.015em'}}>Dokumen Kantor</h3>
+              <p style={{fontSize:14.5, color:'var(--ink-2)', lineHeight:1.55, margin:0}}>Kirim berkas urgent antar kantor di Gerung — sampai dalam hitungan menit, foto bukti otomatis ke WA.</p>
+            </div>
+
+            {/* Card 2 — Makanan */}
+            <div className="uc-card">
+              <div style={{height:140, borderRadius:18, background:'rgba(245,158,11,.10)', marginBottom:24, position:'relative', overflow:'hidden', border:'1px solid rgba(245,158,11,.18)'}}>
+                <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid slice" style={{width:'100%', height:'100%'}}>
+                  <ellipse cx="160" cy="105" rx="78" ry="10" fill="#D97706" opacity=".15"/>
+                  <rect x="100" y="50" width="120" height="60" rx="10" fill="#fff" stroke="#D97706" strokeWidth="1.5"/>
+                  <path d="M 100 70 L 220 70" stroke="#D97706" strokeOpacity=".3" strokeWidth="1.5"/>
+                  <circle cx="124" cy="60" r="4" fill="#D97706" opacity=".5"/>
+                  <path d="M 140 30 Q 160 10 180 30 Q 195 14 210 30" stroke="#D97706" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6"/>
+                  <path d="M 130 22 Q 150  4 170 22"                stroke="#D97706" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".4"/>
+                </svg>
+              </div>
+              <div style={{width:44, height:44, borderRadius:12, background:'rgba(245,158,11,.10)', color:'#D97706', display:'grid', placeItems:'center', marginBottom:18}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 2v7a3 3 0 0 0 3 3v10M9 2v9M6 2v3"/><path d="M19 2v20M15 2c0 4 1.5 6 4 7"/></svg>
+              </div>
+              <h3 style={{fontSize:22, color:'var(--navy)', marginBottom:10, letterSpacing:'-.015em'}}>Makanan &amp; Minuman</h3>
+              <p style={{fontSize:14.5, color:'var(--ink-2)', lineHeight:1.55, margin:0}}>Warung, kafe, dan resto bisa pakai GiriGo sebagai armada antar. Tinggal kirim alamat, beres.</p>
+            </div>
+
+            {/* Card 3 — Paket UMKM */}
+            <div className="uc-card">
+              <div style={{height:140, borderRadius:18, background:'rgba(124,58,237,.10)', marginBottom:24, position:'relative', overflow:'hidden', border:'1px solid rgba(124,58,237,.18)'}}>
+                <svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid slice" style={{width:'100%', height:'100%'}}>
+                  <path d="M 110 50 L 160 30 L 210 50 L 210 110 L 160 130 L 110 110 Z" fill="#fff" stroke="#7C3AED" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <path d="M 110 50 L 160 70 L 210 50" stroke="#7C3AED" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
+                  <path d="M 160 70 L 160 130"         stroke="#7C3AED" strokeWidth="1.5" fill="none"/>
+                  <rect x="148" y="40" width="24" height="8" fill="#7C3AED" opacity=".4"/>
+                </svg>
+              </div>
+              <div style={{width:44, height:44, borderRadius:12, background:'rgba(124,58,237,.10)', color:'#7C3AED', display:'grid', placeItems:'center', marginBottom:18}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              </div>
+              <h3 style={{fontSize:22, color:'var(--navy)', marginBottom:10, letterSpacing:'-.015em'}}>Paket UMKM</h3>
+              <p style={{fontSize:14.5, color:'var(--ink-2)', lineHeight:1.55, margin:0}}>Toko online lokal? Kami jemput dari rumah Anda dan antar ke pelanggan dalam kota. COD didukung.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ HOW IT WORKS ═════════════════════════════════════════════════════ */}
+      <section className="band-pale" id="cara">
+        <div className="lp-container">
+          <div className="section-head">
+            <div className="eyebrow"><span className="dot"/>Cara Pakai</div>
+            <h2>Cara Pakai GiriGo</h2>
+            <p className="lede">4 langkah mudah, semua lewat WhatsApp.</p>
           </div>
 
           <div className="timeline">
-            <div className="timeline-line">
-              <div className="dash" />
-            </div>
+            <div className="timeline-line"><div className="dash"/></div>
             <div className="steps">
               {[
-                { no: '1', nm: 'Chat WhatsApp', ds: 'Ketik "Halo" ke nomor GiriGo — bot kami merespons dalam detik, siap 24 jam.', state: 'done' },
-                { no: '2', nm: 'Konfirmasi Harga', ds: 'Bot mengirim estimasi jarak, ETA, dan ongkir. Setujui dengan satu ketukan.', state: 'active' },
-                { no: '3', nm: 'Kurir Berangkat', ds: 'Sistem dispatch otomatis menemukan kurir terdekat dan mengirim notifikasi tracking.', state: '' },
-                { no: '4', nm: 'Terkirim!', ds: 'Foto bukti pengiriman dikirim ke WhatsApp pengirim secara otomatis.', state: '' },
+                { no:'1', nm:'Chat WhatsApp',    ds:'Ketik "Halo" ke nomor GiriGo — bot kami langsung respons.',          state:'done' },
+                { no:'2', nm:'Konfirmasi Harga', ds:'Kami kirim estimasi jarak, ETA, dan ongkir. Setujui dengan 1 ketuk.', state:'done' },
+                { no:'3', nm:'Kurir Berangkat',  ds:'Kurir terdekat langsung dijemput otomatis. Anda dapat link tracking.', state:'active' },
+                { no:'4', nm:'Terkirim!',         ds:'Foto bukti pengiriman dikirim ke WhatsApp Anda secara otomatis.',     state:'' },
               ].map(s => (
                 <div key={s.no} className={`step ${s.state}`}>
-                  <span className="idx mono">STEP_{s.no}</span>
+                  <span className="idx mono">STEP / 0{s.no}</span>
                   <div className="node">
                     <div className="node-inner">{s.no}</div>
                   </div>
@@ -455,13 +718,165 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Tariff ── */}
-      <section className="band-light" id="tarif">
+      {/* ══ LIVE TRACKER PREVIEW ═════════════════════════════════════════════ */}
+      <section className="band-light" id="lacak">
+        <div className="lp-container">
+          <div style={{display:'grid', gridTemplateColumns:'1fr auto', gap:40, alignItems:'end', marginBottom:48}}>
+            <div>
+              <div className="eyebrow"><span className="dot"/>Live Tracking</div>
+              <h2 style={{fontSize:'clamp(36px,4vw,52px)', letterSpacing:'-.03em', color:'var(--navy)', marginTop:16}}>
+                Lacak setiap order — real-time.
+              </h2>
+              <p style={{fontSize:17, color:'var(--ink-2)', marginTop:14, lineHeight:1.55, maxWidth:580}}>
+                Setiap pesanan punya halaman tracking publik. Bagikan link ke pelanggan, lihat lokasi kurir, status, dan foto bukti — semua di satu tempat.
+              </p>
+            </div>
+            <Link href="/tracking" className="btn btn-ghost-light" style={{whiteSpace:'nowrap'}}>
+              Buka contoh tracking
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </Link>
+          </div>
+
+          <div className="tracker-wrap">
+            {/* Map side */}
+            <div style={{position:'relative', background:'linear-gradient(180deg,#0A1428,#131c34)', overflow:'hidden'}}>
+              <svg viewBox="0 0 640 540" preserveAspectRatio="none" style={{position:'absolute', inset:0, width:'100%', height:'100%'}}>
+                <defs>
+                  <pattern id="trk-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                    <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(255,255,255,.04)" strokeWidth="1"/>
+                  </pattern>
+                </defs>
+                <rect width="640" height="540" fill="url(#trk-grid)"/>
+                {/* Roads */}
+                <path d="M 0 160 Q 120 120 240 200 T 640 220" stroke="rgba(255,255,255,.12)" strokeWidth="2" fill="none"/>
+                <path d="M 0 380 Q 140 420 320 380 T 640 410" stroke="rgba(255,255,255,.10)" strokeWidth="2" fill="none"/>
+                <path d="M 180 0 Q 200 220 240 320 T 280 540" stroke="rgba(255,255,255,.10)" strokeWidth="2" fill="none"/>
+                {/* Roundabout */}
+                <circle cx="240" cy="280" r="60" stroke="#FACC15" strokeOpacity=".55" strokeWidth="2" fill="rgba(250,204,21,.04)"/>
+                <circle cx="240" cy="280" r="36" stroke="#2563EB" strokeOpacity=".4" strokeWidth="1.5" fill="none"/>
+                <circle cx="240" cy="280" r="6"  fill="#FACC15"/>
+                {/* Ghost route */}
+                <path d="M 80 400 Q 160 360 240 280 Q 320 200 400 220 Q 480 240 560 160"
+                  stroke="rgba(250,204,21,.25)" strokeWidth="3" fill="none"/>
+                {/* Animated progress fill */}
+                <path d="M 80 400 Q 160 360 240 280 Q 320 200 400 220 Q 480 240 560 160"
+                  stroke="#FACC15" strokeWidth="3" fill="none" strokeLinecap="round"
+                  strokeDasharray="600" strokeDashoffset="240"
+                  style={{animation:'trailSweep 8s linear infinite alternate'}}/>
+              </svg>
+
+              {/* Animated courier dot */}
+              <svg viewBox="0 0 640 540" preserveAspectRatio="none"
+                style={{position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', overflow:'visible'}}>
+                <circle className="courier-moving" r="14" fill="#FACC15" opacity=".3"/>
+                <circle className="courier-moving" r="8"  fill="#FACC15" style={{animationDelay:'.05s'}}/>
+                <circle className="courier-moving" r="3"  fill="#0F172A" style={{animationDelay:'.05s'}}/>
+              </svg>
+
+              {/* Pickup pin */}
+              <div style={{position:'absolute', left:'12.5%', top:'74%', transform:'translate(-50%,-50%)'}}>
+                <div style={{background:'#fff', color:'var(--navy)', padding:'6px 10px', borderRadius:99, fontSize:12, fontWeight:600, boxShadow:'0 8px 20px -8px rgba(0,0,0,.4)', display:'flex', alignItems:'center', gap:6, whiteSpace:'nowrap'}}>
+                  <span style={{width:8, height:8, borderRadius:99, background:'#16A34A'}}/>Pickup
+                </div>
+              </div>
+              {/* Dropoff pin */}
+              <div style={{position:'absolute', left:'87.5%', top:'30%', transform:'translate(-50%,-50%)'}}>
+                <div style={{background:'var(--yellow)', color:'var(--navy)', padding:'6px 10px', borderRadius:99, fontSize:12, fontWeight:700, boxShadow:'0 8px 20px -8px rgba(250,204,21,.5)', display:'flex', alignItems:'center', gap:6, whiteSpace:'nowrap'}}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                  Dasan Baru
+                </div>
+              </div>
+              {/* Courier HUD */}
+              <div style={{position:'absolute', left:20, top:20, background:'rgba(15,23,42,.8)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.1)', borderRadius:14, padding:'14px 16px', color:'#fff', fontSize:12, display:'flex', alignItems:'center', gap:14}}>
+                <span style={{width:40, height:40, borderRadius:99, background:'var(--yellow)', color:'var(--navy)', display:'grid', placeItems:'center', fontWeight:700, fontSize:14, flexShrink:0}}>A</span>
+                <div>
+                  <div style={{fontWeight:600, fontSize:14}}>Kurir Andi</div>
+                  <div style={{color:'rgba(255,255,255,.6)', marginTop:2}}>★ 4.9 · DD–1234</div>
+                </div>
+                <div style={{height:28, width:1, background:'rgba(255,255,255,.1)'}}/>
+                <div>
+                  <div style={{color:'rgba(255,255,255,.55)', fontSize:11}}>ETA</div>
+                  <div style={{fontWeight:700, fontSize:16, color:'#FACC15'}} className="mono">8 mnt</div>
+                </div>
+              </div>
+              {/* Live tag */}
+              <div style={{position:'absolute', right:20, bottom:20, background:'rgba(15,23,42,.8)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.1)', borderRadius:99, padding:'8px 14px', color:'#fff', fontSize:12, display:'flex', alignItems:'center', gap:8}}>
+                <span className="live-dot"/> Order #GG-2847 · LIVE
+              </div>
+            </div>
+
+            {/* Timeline side */}
+            <div style={{padding:32, color:'#fff', background:'var(--navy)'}}>
+              <div className="chip chip-yellow" style={{marginBottom:20}}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+                Status real-time
+              </div>
+              <div style={{fontSize:13, color:'rgba(255,255,255,.55)'}}>ORDER</div>
+              <div className="mono" style={{fontSize:18, fontWeight:700, marginTop:4}}>GG-2847</div>
+              <div style={{display:'flex', justifyContent:'space-between', marginTop:18, paddingBottom:18, borderBottom:'1px solid rgba(255,255,255,.06)'}}>
+                <div>
+                  <div style={{fontSize:11, color:'rgba(255,255,255,.5)', letterSpacing:'.1em'}}>PICKUP</div>
+                  <div style={{fontSize:14, fontWeight:500, marginTop:4}}>Giri Menang Sq.</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{alignSelf:'center'}} aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontSize:11, color:'rgba(255,255,255,.5)', letterSpacing:'.1em'}}>DROPOFF</div>
+                  <div style={{fontSize:14, fontWeight:500, marginTop:4}}>Dasan Baru</div>
+                </div>
+              </div>
+
+              <div style={{marginTop:28}}>
+                {[
+                  { t:'14:02',  ev:'Order dibuat',                        status:'done' },
+                  { t:'14:04',  ev:'Kurir Andi assigned · 1.2 km',        status:'done' },
+                  { t:'14:09',  ev:'Pickup di Giri Menang Square',         status:'done' },
+                  { t:'14:14',  ev:'Dalam perjalanan ke Dasan Baru',       status:'active' },
+                  { t:'~14:22', ev:'ETA Selesai',                          status:'pending' },
+                ].map((m, i, arr) => {
+                  const isDone   = m.status === 'done'
+                  const isActive = m.status === 'active'
+                  const color = isDone ? '#22C55E' : isActive ? '#FACC15' : 'rgba(255,255,255,.25)'
+                  return (
+                    <div key={i} style={{display:'flex', gap:14, padding:'12px 0', position:'relative'}}>
+                      {i < arr.length - 1 && (
+                        <div style={{position:'absolute', left:9, top:28, bottom:-12, width:2, background: isDone ? 'rgba(34,197,94,.3)' : 'rgba(255,255,255,.08)'}}/>
+                      )}
+                      <div style={{position:'relative', flexShrink:0}}>
+                        <div style={{width:20, height:20, borderRadius:99, background: isDone ? color : 'transparent', border:`2px solid ${color}`, display:'grid', placeItems:'center'}}>
+                          {isDone   && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 6L9 17l-5-5"/></svg>}
+                          {isActive && <span style={{width:8, height:8, borderRadius:99, background:color}}/>}
+                        </div>
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:13, color: isActive ? '#FACC15' : '#fff', fontWeight: isActive ? 600 : 500, lineHeight:1.4}}>{m.ev}</div>
+                        <div className="mono" style={{fontSize:11, color:'rgba(255,255,255,.5)', marginTop:4}}>{m.t}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div style={{display:'flex', gap:8, marginTop:24}}>
+                <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-dark btn-sm" style={{flex:1}}>
+                  <WaIcon size={14}/> WA Kurir
+                </a>
+                <a href={`tel:+${WA_NUMBER}`} className="btn btn-ghost-dark btn-sm" style={{flex:1}}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.7 19.79 19.79 0 0 1 1.61 5.08 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Telpon
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ TARIFF ═══════════════════════════════════════════════════════════ */}
+      <section className="band-pale" id="tarif">
         <div className="lp-container">
           <div className="section-head">
-            <div className="eyebrow"><span className="dot" />Tarif Ongkir</div>
-            <h2>Harga Transparan, Tanpa Biaya Tersembunyi</h2>
-            <p className="lede">Ongkir dikonfirmasi via WhatsApp sebelum order diproses. Anda selalu tahu harga sebelum setuju.</p>
+            <div className="eyebrow"><span className="dot"/>Tarif</div>
+            <h2>Tarif Ongkir</h2>
+            <p className="lede">Harga transparan, tidak ada biaya tersembunyi.</p>
           </div>
 
           <div className="tariff-wrap">
@@ -469,63 +884,62 @@ export default function HomePage() {
               <div className="tariff-head">
                 <span>Jarak</span>
                 <span>Ongkir</span>
-                <span>Area</span>
+                <span>Keterangan</span>
               </div>
-
-              <div className="tariff-row featured">
+              <div className="tariff-row">
                 <div className="range">0 – 2 km</div>
                 <div className="price">Rp 5.000</div>
-                <div className="note"><span className="area-dot" />Gerung Kota</div>
+                <div className="note"><span className="area-dot" style={{background:'#2563EB'}}/>Gerung Kota</div>
               </div>
-
-              <div className="tariff-row">
+              <div className="tariff-row featured">
                 <div className="range">2 – 5 km</div>
                 <div className="price">
-                  Rp 5.000
-                  <span className="plus">+</span>
-                  <span className="extra">Rp 2.000/km</span>
+                  Rp 5.000<span className="plus">+</span><span className="extra">Rp 2.000/km</span>
                 </div>
-                <div className="note"><span className="area-dot" />Gerung & sekitar</div>
+                <div className="note"><span className="area-dot"/>Gerung &amp; sekitar</div>
               </div>
-
               <div className="tariff-row">
                 <div className="range">5 – 10 km</div>
                 <div className="price">
-                  Rp 5.000
-                  <span className="plus">+</span>
-                  <span className="extra">Rp 2.000/km</span>
+                  Rp 5.000<span className="plus">+</span><span className="extra">Rp 2.000/km</span>
                 </div>
-                <div className="note"><span className="area-dot" />Lombok Barat</div>
+                <div className="note"><span className="area-dot" style={{background:'#2563EB'}}/>Lombok Barat</div>
               </div>
             </div>
-
             <p className="tariff-note">
-              Tarif paket berat atau oversize mungkin berbeda — harga final selalu dikonfirmasi via WhatsApp sebelum kurir berangkat.
-              Nilai paket COD tidak termasuk dalam perhitungan ongkir.
+              Tarif bisa berubah untuk jenis paket berat. Konfirmasi harga dikirim otomatis sebelum order dikonfirmasi.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
-      <section className="band-pale">
+      {/* ══ TESTIMONIALS ═════════════════════════════════════════════════════ */}
+      <section className="band-light">
         <div className="lp-container">
           <div className="section-head">
-            <div className="eyebrow"><span className="dot" />Testimoni</div>
+            <div className="eyebrow"><span className="dot"/>Suara Pelanggan</div>
             <h2>Dipercaya Warga Gerung</h2>
-            <p className="lede">Dari warung makan hingga kantor pemerintah — GiriGo sudah menjadi kurir andalan Kecamatan Gerung.</p>
+            <p className="lede">Ratusan order setiap minggu, dari warung kopi sampai kantor desa.</p>
           </div>
 
           <div className="testi-grid">
-            {TESTIMONIALS.map(t => (
+            {[
+              { text:'Cepat banget! Kirim makanan dari warung saya sampai dalam 15 menit. Recommended!', name:'Ibu Sari',   area:'Gerung Kota', init:'S', alt:'' },
+              { text:'Gampang banget, tinggal WhatsApp langsung ada kurir. Harga juga transparan.',     name:'Pak Hendra', area:'Giri Menang',  init:'H', alt:'alt-1' },
+              { text:'Sudah pakai GiriGo tiap hari buat kirim dokumen kantor. Nggak pernah telat.',    name:'Bu Dewi',    area:'Dasan Baru',   init:'D', alt:'alt-2' },
+            ].map(t => (
               <div key={t.name} className="testi">
                 <span className="quote-mark">&ldquo;</span>
                 <div className="stars">
-                  {[1,2,3,4,5].map(i => <StarIcon key={i} />)}
+                  {[1,2,3,4,5].map(s => (
+                    <svg key={s} viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+                      <path d="M12 2l2.9 6.9 7.6.6-5.8 5 1.8 7.4L12 18l-6.5 3.9 1.8-7.4-5.8-5 7.6-.6L12 2z"/>
+                    </svg>
+                  ))}
                 </div>
-                <p className="text">{t.text}</p>
+                <p className="text">"{t.text}"</p>
                 <div className="who">
-                  <div className={`avatar ${t.cls}`}>{t.init}</div>
+                  <div className={`avatar ${t.alt}`}>{t.init}</div>
                   <div>
                     <div className="nm">{t.name}</div>
                     <div className="ar">{t.area}</div>
@@ -534,100 +948,145 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── CTA band ── */}
-      <section className="cta-band">
-        {/* Background glow */}
-        <div style={{ position: 'absolute', top: '-200px', left: '-100px', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(37,99,235,0.3), transparent 60%)', pointerEvents: 'none' }} aria-hidden />
-        <div style={{ position: 'absolute', bottom: '-200px', right: '-100px', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(250,204,21,0.15), transparent 60%)', pointerEvents: 'none' }} aria-hidden />
-
-        <div className="lp-container">
-          <div className="inner">
-            <div className="scooter-glyph-wrap">
-              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          {/* Trust strip */}
+          <div style={{
+            marginTop:64, padding:'32px 40px',
+            background:'linear-gradient(90deg,#F1F5FA 0%,#fff 50%,#F1F5FA 100%)',
+            borderRadius:24, border:'1px solid var(--line)',
+            display:'flex', alignItems:'center', justifyContent:'space-between',
+            gap:32, flexWrap:'wrap',
+          }}>
+            <div style={{display:'flex', alignItems:'center', gap:14}}>
+              <div style={{display:'flex'}}>
+                {['M','R','S','A','N','B','I'].map((l,i) => (
+                  <div key={l} style={{
+                    width:36, height:36, borderRadius:99,
+                    background:['#0F172A','#2563EB','#FACC15','#1E293B','#0F172A','#2563EB','#FACC15'][i],
+                    color: i===2||i===6 ? '#0F172A' : '#fff',
+                    border:'2px solid #fff', marginLeft: i===0 ? 0 : -10,
+                    display:'grid', placeItems:'center', fontSize:13, fontWeight:700,
+                  }}>{l}</div>
+                ))}
+              </div>
+              <div>
+                <div style={{fontSize:16, fontWeight:700, color:'var(--navy)'}}>500+ pelanggan</div>
+                <div style={{fontSize:13, color:'var(--ink-2)'}}>dari Kecamatan Gerung mempercayai GiriGo</div>
+              </div>
             </div>
-
-            <div className="chip chip-yellow" style={{ marginTop: '28px' }}>
-              <span className="live-dot" />
-              Bot aktif 24 jam, 7 hari seminggu
-            </div>
-
-            <h2>
-              Siap Kirim<br />
-              <span className="accent">Sekarang?</span>
-            </h2>
-
-            <p>Chat WhatsApp kami — bot cerdas kami siap memproses order Anda kapan saja, di mana saja. Tidak perlu aplikasi, tidak perlu daftar.</p>
-
-            <div className="ctas">
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="lp-btn btn-wa lp-btn-lg">
-                <WaIcon />
-                Mulai Chat WhatsApp
-              </a>
-              <Link href="/tracking" className="lp-btn btn-ghost-dark lp-btn-lg">
-                Lacak Paket Saya
-              </Link>
+            <div style={{display:'flex', alignItems:'center', gap:8}}>
+              {[1,2,3,4,5].map(s => (
+                <svg key={s} viewBox="0 0 24 24" width="20" height="20" fill="#FACC15" aria-hidden>
+                  <path d="M12 2l2.9 6.9 7.6.6-5.8 5 1.8 7.4L12 18l-6.5 3.9 1.8-7.4-5.8-5 7.6-.6L12 2z"/>
+                </svg>
+              ))}
+              <span style={{fontSize:16, fontWeight:700, color:'var(--navy)', marginLeft:6}}>4.9</span>
+              <span style={{fontSize:13, color:'var(--ink-3)', marginLeft:4}}>/ 5.0</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ── */}
+      {/* ══ CTA BAND ═════════════════════════════════════════════════════════ */}
+      <section className="cta-band">
+        <RouteGrid/>
+        <div className="lp-container inner">
+          <div className="scooter-glyph-wrap">
+            <ScooterGlyph size={42} color="#0F172A"/>
+          </div>
+
+          <div className="chip chip-yellow" style={{marginTop:28}}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+            Operasional 24 jam · Bot membalas instan
+          </div>
+
+          <h2>Siap Kirim <span className="accent">Sekarang?</span></h2>
+          <p>Chat WhatsApp kami — bot kami siap 24 jam membantu proses order Anda.</p>
+
+          <div className="ctas">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="btn btn-yellow btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+              Mulai Chat WhatsApp
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <Link href="/tracking" className="btn btn-ghost-dark btn-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
+              Lacak Paket Saya
+            </Link>
+          </div>
+
+          <div style={{marginTop:32, display:'flex', justifyContent:'center', gap:32, flexWrap:'wrap', fontSize:13, color:'rgba(255,255,255,.55)'}}>
+            {['Tanpa aplikasi','Tanpa daftar','Mulai dari Rp 5.000'].map(item => (
+              <span key={item} style={{display:'flex', alignItems:'center', gap:8}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FOOTER ═══════════════════════════════════════════════════════════ */}
       <footer className="lp-footer">
         <div className="lp-container">
           <div className="inner">
-            {/* Brand column */}
+            {/* Brand */}
             <div>
-              <div className="brand-lock">
-                <span className="scoot">🛵</span> GiriGo
+              <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:18}}>
+                <BrandMark size={36}/>
+                <span style={{color:'#fff', fontWeight:700, fontSize:20}}>GiriGo</span>
               </div>
-              <p style={{ fontSize: '14px', marginTop: '12px', lineHeight: 1.6, maxWidth: '220px' }}>
-                Kurir hyperlokal berbasis WhatsApp untuk Kecamatan Gerung, Lombok Barat.
+              <p style={{fontSize:14, lineHeight:1.6, margin:0, maxWidth:280}}>
+                Kurir cepat berbasis WhatsApp. Lokal Gerung, Lombok Barat — antar dokumen, makanan, dan paket dalam menit.
               </p>
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="lp-btn btn-wa lp-btn-sm" style={{ marginTop: '20px', display: 'inline-flex' }}>
-                <WaIcon cls="w-4 h-4" />
-                Chat Sekarang
-              </a>
+              <div style={{marginTop:20, display:'flex', alignItems:'center', gap:8, fontSize:12, color:'rgba(255,255,255,.4)'}}>
+                <span className="live-dot"/> Beroperasi 24/7
+              </div>
             </div>
 
             {/* Layanan */}
             <div>
               <h4>Layanan</h4>
               <ul>
-                <li><a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', transition: 'color .15s' }}>Kirim Paket</a></li>
-                <li><Link href="/tracking" style={{ fontSize: '14px', transition: 'color .15s' }}>Lacak Paket</Link></li>
-                <li><a href="#tarif" style={{ fontSize: '14px', transition: 'color .15s' }}>Tarif Ongkir</a></li>
-                <li><a href="#cara-pakai" style={{ fontSize: '14px', transition: 'color .15s' }}>Cara Pakai</a></li>
+                <li><a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{fontSize:14}}>Kirim Paket</a></li>
+                <li><Link href="/tracking" style={{fontSize:14}}>Lacak Paket</Link></li>
+                <li><a href="#tarif" style={{fontSize:14}}>Tarif Ongkir</a></li>
+                <li><a href="#liputan" style={{fontSize:14}}>Area Liputan</a></li>
               </ul>
             </div>
 
-            {/* Area */}
+            {/* Perusahaan */}
             <div>
-              <h4>Area Operasional</h4>
-              <ul style={{ fontSize: '14px' }}>
-                {['Gerung Kota', 'Giri Menang', 'Dasan Baru', 'Tempos', 'Sekotong Tengah'].map(a => (
-                  <li key={a} style={{ fontSize: '14px' }}>{a}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Mitra */}
-            <div>
-              <h4>Mitra</h4>
+              <h4>Perusahaan</h4>
               <ul>
-                <li><Link href="/courier" style={{ fontSize: '14px', transition: 'color .15s' }}>Daftar Jadi Kurir</Link></li>
-                <li><Link href="/admin" style={{ fontSize: '14px', transition: 'color .15s' }}>Portal Admin</Link></li>
+                <li><a href="#" style={{fontSize:14}}>Tentang GiriGo</a></li>
+                <li><a href="#" style={{fontSize:14}}>Untuk Bisnis</a></li>
+                <li><Link href="/courier" style={{fontSize:14}}>Jadi Kurir</Link></li>
+                <li><Link href="/admin" style={{fontSize:14}}>Portal Admin</Link></li>
+              </ul>
+            </div>
+
+            {/* Kontak */}
+            <div>
+              <h4>Kontak</h4>
+              <ul>
+                <li>
+                  <a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{fontSize:14, display:'flex', alignItems:'center', gap:8}}>
+                    <WaIcon size={14}/>+62 812-3456-7890
+                  </a>
+                </li>
+                <li><a href="mailto:halo@girigo.id" style={{fontSize:14}}>halo@girigo.id</a></li>
+                <li style={{fontSize:14, lineHeight:1.55}}>Giri Menang Square,<br/>Gerung, Lombok Barat</li>
               </ul>
             </div>
           </div>
 
           <div className="legal">
-            <span>© 2025 GiriGo Courier — Gerung, Lombok Barat</span>
-            <span>Ditenagai teknologi lokal untuk warga lokal 🇮🇩</span>
+            <span>© 2025 GiriGo Courier. Semua hak dilindungi.</span>
+            <div style={{display:'flex', gap:18}}>
+              <a href="#">Kebijakan Privasi</a>
+              <a href="#">Syarat &amp; Ketentuan</a>
+            </div>
           </div>
         </div>
       </footer>

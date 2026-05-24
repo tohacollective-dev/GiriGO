@@ -1324,3 +1324,56 @@ body.density-compact .section-head { margin-bottom: 48px; }
 /* ---- route grid SVG animations ---- */
 @keyframes gridPulse { 0%{transform:scale(1);opacity:1} 80%{transform:scale(6);opacity:0} 100%{transform:scale(6);opacity:0} }
 @keyframes trailSweep { 0%{stroke-dashoffset:460} 100%{stroke-dashoffset:0} }
+
+/* ---- use-case cards (hover without JS) ---- */
+.uc-card {
+  border-radius:28px;
+  border:1px solid var(--line);
+  background:#fff;
+  padding:32px;
+  position:relative;
+  overflow:hidden;
+  min-height:360px;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.uc-card:hover { transform:translateY(-4px);box-shadow:0 24px 50px -28px rgba(15,23,42,.25); }
+
+/* ---- coverage section ---- */
+.coverage-section {
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 30px 80px -40px rgba(15,23,42,.2);
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+}
+@media(max-width:900px){ .coverage-section { grid-template-columns:1fr; } }
+
+/* ---- live tracker ---- */
+.tracker-wrap {
+  background:var(--navy);
+  border-radius:28px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  min-height:540px;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 40px 100px -40px rgba(15,23,42,.5);
+}
+@media(max-width:900px){ .tracker-wrap { grid-template-columns:1fr; } }
+
+/* courier dot moving along route */
+@keyframes courierPath {
+  0%   { transform: translate(80px,400px); }
+  25%  { transform: translate(240px,280px); }
+  50%  { transform: translate(400px,220px); }
+  75%  { transform: translate(480px,190px); }
+  100% { transform: translate(560px,160px); }
+}
+.courier-moving { animation: courierPath 8s ease-in-out infinite alternate; }
+
+/* ---- stats strip sparklines ---- */
+.stats-sparkline { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative; }
+@media(max-width:900px){ .stats-sparkline { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:480px){ .stats-sparkline { grid-template-columns:1fr; } }
