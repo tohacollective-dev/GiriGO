@@ -8,6 +8,7 @@ import {
 import { formatIDR } from '@/lib/pricing'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { StatCardSkeleton, Skeleton } from '@/components/ui/Skeleton'
+import { ActivateSignCard } from '@/components/admin/ActivateSignCard'
 import type { Order } from '@/types'
 
 interface Analytics {
@@ -219,6 +220,9 @@ export default function AdminDashboard() {
           </>
         )}
       </div>
+
+      {/* Activate Sign control */}
+      <ActivateSignCard />
 
       {/* Main content: recent orders + courier status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
