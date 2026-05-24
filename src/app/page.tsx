@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import HeroCalculator from '@/components/HeroCalculator'
 
 const WA_NUMBER  = '6281234567890'
 const WA_MESSAGE = encodeURIComponent('Halo GiriGo! Saya ingin kirim paket.')
@@ -208,92 +209,25 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right: WhatsApp chat preview */}
-          <div style={{position:'relative'}}>
-            {/* Floating chip top-left */}
-            <div className="order-chip">
-              <div className="ic">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-              </div>
-              <div className="meta">
-                <div className="t">Order #GG-2847</div>
-                <div className="s">Picked up · 2 mnt yang lalu</div>
-              </div>
-            </div>
+          {/* Right: Calculator + mini chat strip */}
+          <div className="hero-calc-stack">
+            {/* Interactive fare calculator */}
+            <HeroCalculator/>
 
-            <div className="chat-frame">
-              <div className="chat-screen">
-                <div className="chat-header">
-                  <div className="chat-avatar">
-                    <ScooterGlyph size={22} color="#FACC15"/>
-                  </div>
-                  <div>
-                    <div className="chat-name">GiriGo</div>
-                    <div className="chat-status">
-                      <span className="live-dot"/> bot online · membalas instan
-                    </div>
-                  </div>
-                  <div className="chat-actions">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.7 19.79 19.79 0 0 1 1.61 5.08 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-                  </div>
+            {/* Mini chat strip */}
+            <div className="hero-chat-strip">
+              <div className="hero-chat-strip-head">
+                <div className="av"><ScooterGlyph size={20} color="#FACC15"/></div>
+                <div>
+                  <div className="name">GiriGo Bot</div>
+                  <div className="sub"><span className="live-dot"/> bot online · membalas instan</div>
                 </div>
-
-                <div className="chat-body">
-                  <div className="chat-day">HARI INI</div>
-
-                  <div className="bubble in">
-                    Halo! 👋 Saya bot <strong style={{color:'#FACC15'}}>GiriGo</strong>. Mau kirim paket ke mana hari ini?
-                    <span className="time">08:00</span>
-                  </div>
-                  <div className="bubble out" style={{animationDelay:'.4s'}}>
-                    Halo, kirim dokumen ke Giri Menang Square dong
-                    <span className="time">08:00</span>
-                  </div>
-                  <div className="bubble in bubble-card" style={{animationDelay:'1.4s', minWidth:252}}>
-                    <div className="b-title" style={{marginBottom:6}}>📍 Estimasi Order</div>
-                    <div className="b-row"><span className="k">Jarak</span><span className="v">3.2 km</span></div>
-                    <div className="b-row"><span className="k">ETA Pickup</span><span className="v">8 mnt</span></div>
-                    <div className="b-row"><span className="k">Ongkir</span><span className="v">Rp 11.400</span></div>
-                    <div className="b-cta">
-                      <span className="mini">✓ Konfirmasi</span>
-                      <span className="mini" style={{color:'#8696A0'}}>Batal</span>
-                    </div>
-                    <span className="time">08:01</span>
-                  </div>
-                  <div className="bubble out" style={{animationDelay:'2.5s'}}>
-                    ✓ Konfirmasi
-                    <span className="time">08:01</span>
-                  </div>
-                  <div className="bubble in" style={{animationDelay:'3.4s'}}>
-                    <div className="b-title">🛵 Kurir Andi berangkat</div>
-                    <div style={{fontSize:13, color:'#8696A0', marginTop:4}}>Link tracking dikirim →</div>
-                    <span className="time">08:02</span>
-                  </div>
-                  <div className="bubble in" style={{background:'transparent', padding:'4px 12px', animationDelay:'4.4s'}}>
-                    <span className="typing"><span/><span/><span/></span>
-                  </div>
-                </div>
-
-                <div className="chat-input">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8696A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49"/></svg>
-                  <div className="pill">Ketik pesan…</div>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8696A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-                  <div className="send">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                  </div>
-                </div>
+                <div style={{marginLeft:'auto', fontFamily:'monospace', fontSize:11, color:'rgba(255,255,255,.4)'}}>14:09</div>
               </div>
-            </div>
-
-            {/* Floating chip bottom-right */}
-            <div className="order-chip bottom">
-              <div className="ic">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 6L9 17l-5-5"/></svg>
-              </div>
-              <div className="meta">
-                <div className="t">Terkirim ✓</div>
-                <div className="s">Foto bukti dikirim</div>
+              <div className="strip-bubble in">Halo! 👋 Saya bot GiriGo. Mau kirim paket ke mana?</div>
+              <div className="strip-bubble out">Kirim dokumen ke Giri Menang Sq.</div>
+              <div className="strip-bubble in" style={{background:'rgba(37,99,235,.25)', fontWeight:600, color:'#FACC15'}}>
+                📍 Ongkir Rp 11.400 · ETA 8 mnt &mdash; ketuk ✓ konfirmasi
               </div>
             </div>
           </div>
@@ -495,6 +429,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══ MANIFESTO BAND ═══════════════════════════════════════════════════ */}
+      <section className="manifesto-band">
+        <div className="lp-container">
+          <h2>
+            Kurir lokal yang <em>ngerti</em><br/>
+            area Gerung, ditenagai<br/>
+            teknologi modern.
+          </h2>
+          <div className="manifesto-stats">
+            {[
+              { k:'Order minggu ini',    v:'1,284' },
+              { k:'Rata-rata pickup',    v:'7.6',  u:'mnt' },
+              { k:'Kurir aktif',         v:'12',   u:'online' },
+              { k:'On-time rate',        v:'99.4', u:'%' },
+            ].map(s => (
+              <div key={s.k}>
+                <div className="k">{s.k}</div>
+                <div className="v">{s.v}{s.u && <span className="u">{s.u}</span>}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══ COVERAGE SECTION ═════════════════════════════════════════════════ */}
       <section className="band-pale" id="liputan">
         <div className="lp-container">
@@ -574,42 +532,38 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Zone list */}
-            <div style={{padding:32, display:'flex', flexDirection:'column', gap:8}}>
-              <div style={{fontSize:12, fontWeight:600, color:'var(--ink-3)', letterSpacing:'.14em', textTransform:'uppercase', marginBottom:12}}>
-                Daftar area
+            {/* Zone list — dark sidebar */}
+            <div className="coverage-dark-side">
+              <div className="eyebrow" style={{color:'rgba(255,255,255,.5)'}}>
+                <span style={{display:'inline-block', width:6, height:6, borderRadius:99, background:'#FACC15', marginRight:8, verticalAlign:'middle'}}/>
+                Area Liputan
               </div>
-              {[
-                { name:'Gerung Kota',  status:'Pusat',      c:'#FACC15' },
-                { name:'Giri Menang',  status:'Aktif',      c:'#FACC15' },
-                { name:'Dasan Baru',   status:'Aktif',      c:'#FACC15' },
-                { name:'Banyu Urip',   status:'Aktif',      c:'#FACC15' },
-                { name:'Beleke',       status:'Aktif',      c:'#FACC15' },
-                { name:'Tempos',       status:'Aktif',      c:'#FACC15' },
-                { name:'Mataram',      status:'Antar-kota', c:'#2563EB' },
-                { name:'Lombok Barat', status:'Antar-kota', c:'#2563EB' },
-              ].map((z, i, arr) => (
-                <div key={z.name} style={{
-                  display:'flex', alignItems:'center', justifyContent:'space-between',
-                  padding:'14px 4px',
-                  borderBottom: i===arr.length-1 ? 'none' : '1px solid var(--line-2)',
-                }}>
-                  <div style={{display:'flex', alignItems:'center', gap:12}}>
-                    <span style={{width:8, height:8, borderRadius:99, background:z.c}}/>
-                    <span style={{fontSize:15, fontWeight:500, color:'var(--navy)'}}>{z.name}</span>
+              <h3>12 kurir,<br/>7 zona,<br/>satu kecamatan.</h3>
+              <p>Pengiriman dalam Gerung tarif tetap. Antar-kota ke Mataram &amp; Lombok Barat tersedia on-request via WhatsApp.</p>
+              <div className="zone-list-dark">
+                {[
+                  { name:'Gerung Kota',  status:'Pusat',      c:'#FACC15' },
+                  { name:'Giri Menang',  status:'Aktif',      c:'#FACC15' },
+                  { name:'Dasan Baru',   status:'Aktif',      c:'#FACC15' },
+                  { name:'Banyu Urip',   status:'Aktif',      c:'#FACC15' },
+                  { name:'Beleke',       status:'Aktif',      c:'#FACC15' },
+                  { name:'Tempos',       status:'Aktif',      c:'#FACC15' },
+                  { name:'Mataram',      status:'Antar-kota', c:'#2563EB' },
+                  { name:'Lombok Barat', status:'Antar-kota', c:'#2563EB' },
+                ].map(z => (
+                  <div key={z.name} className="row">
+                    <div className="nm">
+                      <span className="dot" style={{background:z.c}}/>
+                      {z.name}
+                    </div>
+                    <div className="st">{z.status}</div>
                   </div>
-                  <span style={{
-                    fontSize:11, fontWeight:600, padding:'4px 10px', borderRadius:99,
-                    background: z.status==='Pusat' ? 'rgba(250,204,21,.18)' : z.status==='Antar-kota' ? 'rgba(37,99,235,.10)' : 'rgba(34,197,94,.12)',
-                    color:       z.status==='Pusat' ? '#92760A'             : z.status==='Antar-kota' ? '#1D4ED8'             : '#16A34A',
-                  }}>{z.status}</span>
-                </div>
-              ))}
+                ))}
+              </div>
               <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="btn btn-ghost-light"
-                style={{marginTop:16, justifyContent:'space-between'}}>
-                Tanyakan ke kurir via WhatsApp
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                className="btn btn-ghost-dark btn-sm"
+                style={{marginTop:24, justifyContent:'center'}}>
+                <WaIcon size={13}/> Tanya via WhatsApp
               </a>
             </div>
           </div>
