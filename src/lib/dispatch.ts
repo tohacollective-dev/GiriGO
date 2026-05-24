@@ -4,10 +4,11 @@
 // Cascade: offer Courier#1 → 60s → offer Courier#2 → 60s → Courier#3 → Admin Alert
 // =============================================================================
 
-import { supabaseAdmin } from '@/lib/supabase'
-import { haversineKm }   from '@/lib/maps'
-import { sendWhatsApp }  from '@/lib/whatsapp'
-import type { Courier, CourierScore, Order } from '@/types'
+import { supabaseAdmin }                         from '@/lib/supabase'
+import { haversineKm }                          from '@/lib/maps'
+import { sendWhatsApp }                         from '@/lib/whatsapp'
+import { getBestMatchedCouriers, upsertCourierRoute } from '@/lib/route-matching'
+import type { Courier, CourierScore, Order, RouteCourierScore } from '@/types'
 
 const TIMEOUT_MS      = Number(process.env.DISPATCH_TIMEOUT_SECONDS ?? 60) * 1000
 const MAX_ATTEMPTS    = Number(process.env.DISPATCH_MAX_ATTEMPTS    ?? 3)
@@ -171,6 +172,19 @@ async function offerWithTimeout(
   return false
 }
 
+// ── Adapt RouteCourierScore → CourierScore shape for offerWithTimeout ─────────
+function routeScoreToCourierScore(rs: RouteCourierScore): CourierScore {
+  return {
+    courier_id:     rs.courier_id,
+    courier:        { id: rs.courier_id, user: { name: rs.courier_name, phone: rs.courier_phone } } as any,
+    total_score:    rs.total_score,
+    dist_score:     Math.max(0, (5000 - rs.distance_to_pickup_m) / 100),
+    workload_score: Math.max(0, 30 - (rs.orders_in_route * 10)),
+    rating_score:   rs.rating * 6,
+    distance_km:    Math.round(rs.distance_to_pickup_m / 10) / 100,
+  }
+}
+
 // ── Main dispatch orchestrator ─────────────────────────────────────────────────
 export async function dispatchOrder(orderId: string): Promise<void> {
   // Fetch the order
@@ -183,10 +197,31 @@ export async function dispatchOrder(orderId: string): Promise<void> {
   if (orderErr || !order) throw new Error(`Order not found: ${orderId}`)
   if (order.status !== 'pending') return  // already handled
 
-  const pickupLat = order.pickup_lat ?? 0
-  const pickupLng = order.pickup_lng ?? 0
+  const pickupLat  = order.pickup_lat  ?? 0
+  const pickupLng  = order.pickup_lng  ?? 0
+  const dropoffLat = order.dropoff_lat ?? 0
+  const dropoffLng = order.dropoff_lng ?? 0
 
-  const candidates = await getEligibleCouriers(pickupLat, pickupLng)
+  // ── 1. Route-based matching (preferred) ───────────────────────────────────
+  let routeMatches: RouteCourierScore[] = []
+  try {
+    routeMatches = await getBestMatchedCouriers(pickupLat, pickupLng, dropoffLat, dropoffLng)
+  } catch (e) {
+    console.error('[Dispatch] Route matching failed, falling back to distance-based:', e)
+  }
+
+  // Only use route candidates that have at least a nearby match (score > pure rating)
+  const routeCandidates = routeMatches.filter(r => r.match_type !== 'none')
+
+  // ── 2. Fall back to distance-based scoring when no route match found ───────
+  const useRouteMatching = routeCandidates.length > 0
+  let candidates: CourierScore[]
+
+  if (useRouteMatching) {
+    candidates = routeCandidates.map(routeScoreToCourierScore)
+  } else {
+    candidates = await getEligibleCouriers(pickupLat, pickupLng)
+  }
 
   if (!candidates.length) {
     await sendWhatsApp(ADMIN_PHONE, buildAdminAlert(order))
@@ -219,6 +254,30 @@ export async function dispatchOrder(orderId: string): Promise<void> {
         })
         .eq('id', orderId)
 
+      // Update / create the courier's active route record
+      if (useRouteMatching) {
+        const matchedRoute = routeCandidates.find(r => r.courier_id === score.courier_id)
+        const routeId = await upsertCourierRoute(
+          score.courier_id,
+          orderId,
+          {
+            pickup_address:  order.pickup_address,
+            pickup_lat:      pickupLat,
+            pickup_lng:      pickupLng,
+            dropoff_address: order.dropoff_address,
+            dropoff_lat:     dropoffLat,
+            dropoff_lng:     dropoffLng,
+          },
+          matchedRoute?.route_id ?? null,
+        )
+        if (routeId) {
+          await supabaseAdmin
+            .from('orders')
+            .update({ assigned_route_id: routeId })
+            .eq('id', orderId)
+        }
+      }
+
       // Notify customer
       const { data: customer } = await supabaseAdmin
         .from('users')
@@ -227,15 +286,16 @@ export async function dispatchOrder(orderId: string): Promise<void> {
         .single()
 
       if (customer) {
-        const appUrl     = process.env.NEXT_PUBLIC_APP_URL ?? 'https://girigocourier.vercel.app'
-        const courierName = (score.courier as any).user.name
+        const appUrl      = process.env.NEXT_PUBLIC_APP_URL ?? 'https://girigocourier.vercel.app'
+        const courierName = (score.courier as any).user?.name ?? 'Kurir GiriGo'
+        const routeTag    = useRouteMatching ? '\n🗺️ _Order dioptimasi via route matching_' : ''
         await sendWhatsApp(customer.phone, [
           `✅ *Kurir GiriGo Ditemukan!*`,
           ``,
           `📦 Order: *${order.order_code}*`,
           `🧑 Kurir: ${courierName}`,
           `📍 Sedang menuju lokasi jemput`,
-          ``,
+          routeTag,
           `🔗 Live tracking:`,
           `${appUrl}/tracking/${order.order_code}`,
           ``,

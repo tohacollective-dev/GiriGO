@@ -187,3 +187,50 @@ export interface DailySummary {
   gross_revenue:    number
   success_rate_pct: number
 }
+
+// ── Route-based dispatch types ────────────────────────────────────────────────
+
+export interface CourierActiveRoute {
+  id:                        string
+  courier_id:                string
+  route_start_address:       string
+  route_end_address:         string
+  start_lat:                 number
+  start_lng:                 number
+  end_lat:                   number
+  end_lng:                   number
+  current_location:          { lat: number | null; lng: number | null; updated_at: string | null }
+  orders_in_route:           string[]
+  total_distance_km:         number
+  estimated_completion_time: string | null
+  status:                    'active' | 'idle' | 'completed'
+  created_at:                string
+  updated_at:                string
+  // joined
+  courier?:                  Courier & { user: User }
+}
+
+export interface RouteCourierScore {
+  courier_id:           string
+  courier_name:         string
+  courier_phone:        string
+  route_id:             string | null
+  total_score:          number
+  match_type:           'exact' | 'similar' | 'nearby' | 'none'
+  distance_to_pickup_m: number
+  orders_in_route:      number
+  rating:               number
+}
+
+export interface RouteAssignmentResult {
+  assigned_courier_id:    string
+  route_id:               string
+  route_info: {
+    match_type:           string
+    orders_in_route:      number
+    total_distance_km:    number
+  }
+  estimated_pickup_time:  string
+  estimated_dropoff_time: string
+  cost_estimate:          number
+}
