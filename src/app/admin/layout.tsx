@@ -25,6 +25,7 @@ import {
   Search,
   Plus,
   ChevronRight,
+  Megaphone,
 } from 'lucide-react'
 
 const GlobalSearch = dynamic(() => import('@/components/admin/GlobalSearch'), { ssr: false })
@@ -93,6 +94,12 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: 'MARKETING',
+    items: [
+      { href: '/admin/marketing', label: 'Command Center', icon: Megaphone, badge: 'NEW', badgeColor: 'amber' },
+    ],
+  },
+  {
     label: 'OPERATIONS',
     items: [
       { href: '/admin/simulation', label: 'Dispatch Engine',    icon: FlaskConical },
@@ -122,6 +129,7 @@ function getSectionName(path: string): string {
   if (path.startsWith('/admin/simulation'))return 'Dispatch Engine'
   if (path.startsWith('/admin/zones'))     return 'Route Optimization'
   if (path.startsWith('/admin/exceptions'))return 'Exceptions'
+  if (path.startsWith('/admin/marketing')) return 'Marketing Command Center'
   if (path.startsWith('/admin/settings'))  return 'Settings'
   if (path.startsWith('/admin/roles'))     return 'Roles'
   if (path.startsWith('/admin/logs'))      return 'Activity Logs'
