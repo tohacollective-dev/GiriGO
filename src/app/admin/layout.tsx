@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 import {
   LayoutDashboard,
   Package,
@@ -170,11 +171,14 @@ function SidebarItem({ item, active }: { item: NavItem; active: boolean }) {
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const path = usePathname()
+  const path        = usePathname()
+  const isLoginPage = path === '/admin/login'
   const [searchOpen, setSearchOpen] = useState(false)
+  const { user, signOut } = useAuth()
 
-  // Ctrl+K opens global search
+  // Ctrl+K opens global search — all hooks must run unconditionally before any early return
   useEffect(() => {
+    if (isLoginPage) return
     function onKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
@@ -183,7 +187,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [isLoginPage])
+
+  // Login page renders without the sidebar shell
+  if (isLoginPage) {
+    return <>{children}</>
+  }
 
   const isMapPage = path === '/admin/map'
   const sectionName = getSectionName(path)
@@ -250,8 +259,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {bottomGroups.map((group, idx) => renderGroup(group, idx + mainGroups.length))}
 
           <div className="mt-3 pt-3 border-t border-white/10">
-            <button className="flex items-center gap-2.5 px-3 py-2 text-red-400/70 hover:text-red-300
-              hover:bg-red-500/10 text-sm font-medium w-full rounded-lg transition-colors">
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2.5 px-3 py-2 text-red-400/70 hover:text-red-300
+                hover:bg-red-500/10 text-sm font-medium w-full rounded-lg transition-colors"
+            >
               <LogOut size={16} />
               Sign out
             </button>
@@ -299,9 +311,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </span>
             </button>
 
-            <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center
-              text-white text-sm font-bold cursor-pointer hover:bg-brand-700 transition-colors select-none">
-              W
+            <div
+              title={user?.email}
+              className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center
+                text-white text-sm font-bold cursor-pointer hover:bg-brand-700 transition-colors select-none"
+            >
+              {user?.name?.[0]?.toUpperCase() ?? 'A'}
             </div>
           </div>
         </header>
