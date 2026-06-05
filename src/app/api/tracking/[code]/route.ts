@@ -4,11 +4,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { applyRateLimit } from '@/lib/rate-limit'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { code: string } }
 ) {
+  const limited = applyRateLimit(req, 'tracking')
+  if (limited) return limited
+
   const { data, error } = await supabaseAdmin
     .from('orders')
     .select(`

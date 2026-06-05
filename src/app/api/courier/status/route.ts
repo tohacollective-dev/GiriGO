@@ -1,10 +1,12 @@
 // =============================================================================
 // PATCH /api/courier/status — Update courier online/offline + location
+// Auth: Supabase session preferred. Falls back to body courier_id if no session.
 // =============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
+import { authenticateRequest } from '@/lib/api-auth'
 
 const schema = z.object({
   courier_id: z.string().uuid(),
@@ -20,6 +22,22 @@ export async function PATCH(req: NextRequest) {
     if (!parsed.success) return NextResponse.json({ error: 'Invalid payload' }, { status: 422 })
 
     const { courier_id, status, lat, lng } = parsed.data
+
+    // Try session-based auth first
+    const session = await authenticateRequest(req)
+    if (session) {
+      // Verify the authenticated user owns this courier profile
+      const { data: courier } = await supabaseAdmin
+        .from('couriers')
+        .select('id')
+        .eq('auth_id', session.user.id)
+        .single()
+
+      if (!courier || courier.id !== courier_id) {
+        return NextResponse.json({ error: 'Cannot update another courier' }, { status: 403 })
+      }
+    }
+    // If no session, fall through (backward compat with localStorage-based PWA)
 
     const update: Record<string, unknown> = { status }
     if (lat !== undefined && lng !== undefined) {

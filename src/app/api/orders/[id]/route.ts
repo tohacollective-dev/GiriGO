@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
+import { validateTransition } from '@/lib/order-state'
 
 const patchSchema = z.object({
   status:            z.enum(['pending','assigned','picked_up','delivered','cancelled','failed']).optional(),
@@ -36,6 +37,24 @@ export async function PATCH(
     const body   = await req.json()
     const parsed = patchSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
+
+    // ── State machine validation ───────────────────────────────────────────────
+    if (parsed.data.status) {
+      const { data: current, error: fetchErr } = await supabaseAdmin
+        .from('orders')
+        .select('status')
+        .eq('id', params.id)
+        .single()
+
+      if (fetchErr || !current) {
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      }
+
+      const transition = validateTransition(current.status, parsed.data.status)
+      if (!transition.valid) {
+        return NextResponse.json({ error: transition.error }, { status: 422 })
+      }
+    }
 
     const update: Record<string, unknown> = { ...parsed.data }
 

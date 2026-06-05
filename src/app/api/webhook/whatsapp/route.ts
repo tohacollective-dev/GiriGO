@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { parseFonntePayload, verifyWebhookSecret } from '@/lib/whatsapp'
 import { handleInboundMessage } from '@/lib/bot'
+import { applyRateLimit } from '@/lib/rate-limit'
 
 // Health-check / Fonnte webhook verification
 export async function GET() {
@@ -13,6 +14,8 @@ export async function GET() {
 
 // Inbound message handler
 export async function POST(req: NextRequest) {
+  const limited = applyRateLimit(req, 'webhook')
+  if (limited) return limited
   try {
     const body = await req.json()
 

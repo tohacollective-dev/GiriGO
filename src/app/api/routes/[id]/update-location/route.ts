@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
 import { supabaseAdmin }             from '@/lib/supabase'
+import { requireCourierAuth }        from '@/lib/api-auth'
 
 const schema = z.object({
   lat: z.number().min(-90).max(90),
@@ -16,6 +17,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const auth = await requireCourierAuth(req)
+  if (auth instanceof Response) return auth
+
   try {
     const body   = await req.json()
     const parsed = schema.safeParse(body)
@@ -35,6 +39,11 @@ export async function PUT(
 
     if (rErr || !route) {
       return NextResponse.json({ error: 'Route not found' }, { status: 404 })
+    }
+
+    // Verify the courier owns this route
+    if (route.courier_id !== auth.courier.id) {
+      return NextResponse.json({ error: 'Cannot update another courier route' }, { status: 403 })
     }
 
     if (route.status === 'completed') {

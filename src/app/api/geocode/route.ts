@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { geocodeAddress, getRouteDistance } from '@/lib/maps'
 import { calculatePrice } from '@/lib/pricing'
+import { applyRateLimit } from '@/lib/rate-limit'
 
 const schema = z.object({
   pickup_address:  z.string().min(3).max(300),
@@ -14,6 +15,9 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  const limited = applyRateLimit(req, 'geocode')
+  if (limited) return limited
+
   try {
     const raw    = await req.json()
     const parsed = schema.safeParse(raw)
