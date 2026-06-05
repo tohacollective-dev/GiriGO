@@ -305,6 +305,190 @@ function AssignCourierPanel({ order, onClose, onAssign }: AssignPanelProps) {
   )
 }
 
+// ─── Bulk Assign Courier Panel ────────────────────────────────────────────────
+
+interface BulkAssignPanelProps {
+  orderIds: string[]
+  orderCount: number
+  onClose:  () => void
+  onDone:   (assigned: number, courierName: string) => void
+}
+
+function BulkAssignPanel({ orderIds, orderCount, onClose, onDone }: BulkAssignPanelProps) {
+  const [couriers,  setCouriers]  = useState<(Courier & { user: any })[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [assigning, setAssigning] = useState(false)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch('/api/couriers?status=online&limit=50')
+      .then(r => r.json())
+      .then(d => setCouriers(d.data ?? []))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleBulkAssign = async (courier: Courier & { user: any }) => {
+    setAssigning(true)
+    try {
+      const res = await fetch('/api/orders/batch', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          action:     'assign',
+          order_ids:  orderIds,
+          courier_id: courier.id,
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error ?? 'Gagal assign kurir')
+      onDone(result.updated ?? 0, courier.user?.name ?? 'Kurir')
+    } finally {
+      setAssigning(false)
+    }
+  }
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-[700] bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="fixed right-0 top-0 bottom-0 z-[750] w-[400px] bg-white shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <p className="font-semibold text-gray-900">Bulk Assign Kurir</p>
+            <p className="text-xs text-gray-400 mt-0.5 font-mono">{orderCount} orders selected</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          >
+            <X size={15} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {loading && (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton h-16 rounded-xl" />
+              ))}
+            </div>
+          )}
+
+          {!loading && couriers.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <UserCheck size={22} className="text-gray-400" />
+              </div>
+              <p className="text-sm font-medium text-gray-700">Tidak ada kurir online</p>
+              <p className="text-xs text-gray-400 mt-1">Semua kurir sedang offline atau busy.</p>
+            </div>
+          )}
+
+          {!loading && couriers.map(courier => {
+            const score    = courierScore(courier)
+            const initial  = (courier.user?.name ?? 'K').charAt(0).toUpperCase()
+            const stars    = Math.round(courier.rating ?? 0)
+
+            return (
+              <div
+                key={courier.id}
+                className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/40 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  {initial}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm truncate">
+                    {courier.user?.name ?? '—'}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="text-xs text-green-600 font-medium">Online</span>
+                    <span className="flex items-center gap-0.5 ml-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={10}
+                          className={i < stars ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}
+                        />
+                      ))}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-0.5">Score: {score}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleBulkAssign(courier)}
+                  disabled={assigning}
+                  className="btn-primary text-xs px-3 py-1.5 shrink-0"
+                >
+                  {assigning ? '…' : `Assign ${orderCount}`}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="px-5 py-4 border-t border-gray-100">
+          <p className="text-xs text-gray-400">
+            {couriers.length} kurir online tersedia
+          </p>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Bulk Cancel Dialog ───────────────────────────────────────────────────────
+
+function BulkCancelDialog({
+  count,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  count:    number
+  onConfirm: () => void
+  onCancel:  () => void
+  loading:   boolean
+}) {
+  return (
+    <div className="fixed inset-0 z-[800] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+      <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <X size={18} className="text-red-500" />
+          </div>
+          <div>
+            <p className="font-semibold text-gray-900">Cancel Orders</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              <span className="font-mono font-bold text-brand-600">{count}</span> orders will be cancelled.
+            </p>
+          </div>
+        </div>
+        <p className="text-sm text-gray-600 mb-5">
+          Tindakan ini tidak dapat dibatalkan. Yakin ingin melanjutkan?
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="btn-ghost flex-1" disabled={loading}>
+            Batal
+          </button>
+          <button onClick={onConfirm} className="btn-danger flex-1" disabled={loading}>
+            {loading ? 'Cancelling…' : 'Ya, Cancel'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Content ─────────────────────────────────────────────────────────────
 
 function OrdersContent() {
@@ -321,10 +505,13 @@ function OrdersContent() {
   const [courierFilter, setCourierFilter] = useState('')
   const [page,        setPage]        = useState(1)
   const [selected,    setSelected]    = useState<Set<string>>(new Set())
-  const [assignOrder, setAssignOrder] = useState<Order | null>(null)
-  const [cancelOrder, setCancelOrder] = useState<Order | null>(null)
-  const [cancelling,  setCancelling]  = useState(false)
-  const { toasts, show: showToast }   = useToast()
+  const [assignOrder,   setAssignOrder]   = useState<Order | null>(null)
+  const [cancelOrder,   setCancelOrder]   = useState<Order | null>(null)
+  const [cancelling,    setCancelling]    = useState(false)
+  const [bulkAssign,    setBulkAssign]    = useState(false)
+  const [bulkCancel,    setBulkCancel]    = useState(false)
+  const [bulkLoading,   setBulkLoading]   = useState(false)
+  const { toasts, show: showToast }       = useToast()
 
   const activeTab = (params.get('status') ?? '') as TabStatus
 
@@ -427,13 +614,49 @@ function OrdersContent() {
 
   // ── Bulk actions ───────────────────────────────────────────────────────────
 
-  const handleBulkAssign  = () => showToast(`Assign ${selected.size} orders — coming soon`, 'info')
+  const handleBulkAssignOpen  = () => setBulkAssign(true)
+  const handleBulkCancelOpen = () => setBulkCancel(true)
+
+  const handleBulkAssignDone = async (assigned: number, courierName: string) => {
+    setBulkAssign(false)
+    setSelected(new Set())
+    showToast(`${assigned} orders di-assign ke ${courierName}`, 'success')
+    fetchOrders()
+  }
+
+  const handleBulkCancelConfirm = async () => {
+    setBulkLoading(true)
+    try {
+      const res = await fetch('/api/orders/batch', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          action:    'cancel',
+          order_ids: Array.from(selected),
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error ?? 'Gagal cancel orders')
+      const failed = result.failed?.length ?? 0
+      showToast(
+        `${result.updated ?? 0} orders dibatalkan${failed > 0 ? `, ${failed} gagal` : ''}`,
+        failed > 0 ? 'error' : 'success',
+      )
+      setBulkCancel(false)
+      setSelected(new Set())
+      fetchOrders()
+    } catch (err: any) {
+      showToast(err.message ?? 'Gagal cancel orders', 'error')
+    } finally {
+      setBulkLoading(false)
+    }
+  }
+
   const handleBulkExport  = () => {
     const rows = filtered.filter(o => selected.has(o.id))
     exportCSV(rows)
     showToast(`${rows.length} orders exported`, 'success')
   }
-  const handleBulkCancel  = () => showToast(`Cancel ${selected.size} orders — coming soon`, 'info')
 
   // ── Cancel single order ────────────────────────────────────────────────────
 
@@ -791,7 +1014,7 @@ function OrdersContent() {
             </span>
             <div className="w-px h-5 bg-white/20" />
             <button
-              onClick={handleBulkAssign}
+              onClick={handleBulkAssignOpen}
               className="text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
             >
               <UserCheck size={14} />
@@ -805,7 +1028,7 @@ function OrdersContent() {
               Export Selected
             </button>
             <button
-              onClick={handleBulkCancel}
+              onClick={handleBulkCancelOpen}
               className="text-sm font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-1.5"
             >
               <X size={14} />
@@ -828,6 +1051,16 @@ function OrdersContent() {
         onAssign={handleAssigned}
       />
 
+      {/* Bulk Assign Panel */}
+      {bulkAssign && (
+        <BulkAssignPanel
+          orderIds={Array.from(selected)}
+          orderCount={selected.size}
+          onClose={() => setBulkAssign(false)}
+          onDone={handleBulkAssignDone}
+        />
+      )}
+
       {/* Cancel Confirm Dialog */}
       {cancelOrder && (
         <ConfirmDialog
@@ -835,6 +1068,16 @@ function OrdersContent() {
           onConfirm={handleCancel}
           onCancel={() => setCancelOrder(null)}
           loading={cancelling}
+        />
+      )}
+
+      {/* Bulk Cancel Dialog */}
+      {bulkCancel && (
+        <BulkCancelDialog
+          count={selected.size}
+          onConfirm={handleBulkCancelConfirm}
+          onCancel={() => setBulkCancel(false)}
+          loading={bulkLoading}
         />
       )}
     </>
