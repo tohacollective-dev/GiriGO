@@ -4,9 +4,14 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
-export async function GET(_req: NextRequest) {
-  const [summary, couriers, topZones] = await Promise.all([
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
+  try {
+    const [summary, couriers, topZones] = await Promise.all([
     // Daily summary (last 30 days)
     supabaseAdmin
       .from('v_daily_summary')
@@ -58,4 +63,7 @@ export async function GET(_req: NextRequest) {
     couriers:   couriers.data ?? [],
     top_zones:  topZonesList,
   })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message ?? 'Internal error' }, { status: 500 })
+  }
 }

@@ -88,8 +88,8 @@ function KpiSkeleton() {
 
 // ── Custom Donut label ───────────────────────────────────────────────────────
 
-const DONUT_COLORS = { delivered: '#22C55E', pending: '#F97316', failed: '#EF4444', cancelled: '#94A3B8' }
-const DONUT_LABELS: Record<string, string> = { delivered: 'Terkirim', pending: 'Pending', failed: 'Gagal', cancelled: 'Batal' }
+const DONUT_COLORS: Record<string, string> = { delivered: '#22C55E', remaining: '#94A3B8' }
+const DONUT_LABELS:  Record<string, string> = { delivered: 'Terkirim', remaining: 'Lainnya' }
 
 function renderCustomLabel({
   cx, cy, midAngle, innerRadius, outerRadius, percent,
@@ -165,16 +165,13 @@ export default function AnalyticsPage() {
   // Top couriers sorted by orders
   const topCouriers = [...(data?.couriers ?? [])].sort((a, b) => b.total_orders - a.total_orders).slice(0, 5)
 
-  // Status donut data from couriers list
-  // We approximate from total_orders & success_rate
+  // Status donut chart — uses real delivered vs remaining counts
   const delivered  = data?.overview.total_delivered ?? 0
   const totalOrd   = data?.overview.total_orders    ?? 0
-  const pending    = Math.max(0, totalOrd - delivered - Math.round(totalOrd * 0.05))
-  const failed     = Math.max(0, totalOrd - delivered - pending)
+  const remaining  = Math.max(0, totalOrd - delivered)
   const donutData  = [
-    { name: 'delivered', value: delivered },
-    { name: 'pending',   value: pending   },
-    { name: 'failed',    value: failed    },
+    { name: 'delivered', value: delivered, label: 'Terkirim' },
+    ...(remaining > 0 ? [{ name: 'remaining', value: remaining, label: 'Lainnya' }] : []),
   ].filter(d => d.value > 0)
 
   // Top zones capped at 6

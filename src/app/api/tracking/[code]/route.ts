@@ -24,7 +24,11 @@ export async function GET(
     .eq('order_code', params.code.toUpperCase())
     .single()
 
-  if (error || !data) {
+  if (error) {
+    console.error('[Tracking] DB error:', error.message)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+  if (!data) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
 
@@ -43,7 +47,7 @@ export async function GET(
     courier_lng:   (data.courier as any)?.current_lng ?? null,
     courier_rating: (data.courier as any)?.rating ?? null,
     timeline: {
-      ordered:    data.created_at,
+      pending:    data.created_at,
       assigned:   data.assigned_at,
       picked_up:  data.picked_up_at,
       delivered:  data.delivered_at,

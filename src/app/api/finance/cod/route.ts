@@ -14,7 +14,12 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth(req)
   if (auth instanceof Response) return auth
 
-  // Fetch all delivered COD orders, joining courier + user name
+  const { searchParams } = req.nextUrl
+  const days  = Math.min(Number(searchParams.get('days') ?? 30), 90)
+  const limit = Math.min(Number(searchParams.get('limit') ?? 500), 2000)
+  const cutoff = new Date(Date.now() - days * 86_400_000).toISOString()
+
+  // Fetch COD orders within date range
   const { data: orders, error } = await supabaseAdmin
     .from('orders')
     .select(`
@@ -23,11 +28,17 @@ export async function GET(req: NextRequest) {
       package_value,
       payment_method,
       status,
+      created_at,
       couriers:courier_id (
         id,
         users:user_id ( name )
       )
     `)
+    .eq('payment_method', 'cod')
+    .eq('status', 'delivered')
+    .gte('created_at', cutoff)
+    .order('created_at', { ascending: false })
+    .limit(limit)
     .eq('status', 'delivered')
     .eq('payment_method', 'cod')
 

@@ -1,23 +1,14 @@
 // =============================================================================
-// POST /api/webhook/whatsapp — Inbound WhatsApp message handler (Wati.io)
-// GET  /api/webhook/whatsapp — Webhook verification
+// POST /api/webhook/whatsapp — Inbound WhatsApp message handler (Fonnte)
 // =============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
-import { parseWatiPayload, verifyWebhookToken } from '@/lib/whatsapp'
+import { parseFonntePayload, verifyWebhookSecret } from '@/lib/whatsapp'
 import { handleInboundMessage } from '@/lib/bot'
 
-// Webhook verification (META / Wati.io challenge)
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl
-  const mode      = searchParams.get('hub.mode')
-  const token     = searchParams.get('hub.verify_token')
-  const challenge = searchParams.get('hub.challenge')
-
-  if (mode === 'subscribe' && verifyWebhookToken(token ?? '')) {
-    return new NextResponse(challenge, { status: 200 })
-  }
-  return new NextResponse('Forbidden', { status: 403 })
+// Health-check / Fonnte webhook verification
+export async function GET() {
+  return new NextResponse('OK', { status: 200 })
 }
 
 // Inbound message handler
@@ -25,13 +16,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Verify token from Wati header (optional, depends on Wati plan)
-    const headerToken = req.headers.get('x-wati-token')
-    if (headerToken && !verifyWebhookToken(headerToken)) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    // Verify Fonnte webhook secret (required)
+    const secret = body.secret as string | undefined
+    if (!secret || !verifyWebhookSecret(secret)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const msg = parseWatiPayload(body)
+    const msg = parseFonntePayload(body)
     if (!msg) {
       return NextResponse.json({ ok: true, skipped: true })
     }

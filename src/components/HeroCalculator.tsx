@@ -23,11 +23,17 @@ function lookupKm(a: string, b: string) {
   return KM[`${A}|${B}`] ?? KM[`${B}|${A}`] ?? null
 }
 
-const calcOngkir = (km: number) => km <= 2 ? 5000 : 5000 + Math.round((km - 2) * 2000)
+const calcOngkir = (km: number) => {
+  const base     = km <= 2 ? 5000 : 5000 + Math.round((km - 2) * 2000)
+  const rounded  = Math.ceil(base / 500) * 500
+  return rounded
+}
 const calcEta    = (km: number) => Math.max(6, Math.round(6 + km * 2.4))
 const fmtRp      = (n: number)  => 'Rp ' + n.toLocaleString('id-ID')
 
-const WA = '6281234567890'
+const WA = typeof window !== 'undefined'
+  ? (process.env.NEXT_PUBLIC_ADMIN_WHATSAPP ?? '6281234567890')
+  : '6281234567890'
 
 export default function HeroCalculator() {
   const [pickup,  setPickup]  = useState('Gerung Kota')
