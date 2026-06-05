@@ -1,13 +1,13 @@
 // =============================================================================
-// POST /api/webhook/whatsapp — Inbound WhatsApp message handler (Fonnte)
+// POST /api/webhook/whatsapp — Inbound WhatsApp message handler (Wati.io)
 // =============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
-import { parseFonntePayload, verifyWebhookSecret } from '@/lib/whatsapp'
+import { parseWatiPayload, verifyWebhookToken } from '@/lib/whatsapp'
 import { handleInboundMessage } from '@/lib/bot'
 import { applyRateLimit } from '@/lib/rate-limit'
 
-// Health-check / Fonnte webhook verification
+// Health-check / Wati.io webhook verification
 export async function GET() {
   return new NextResponse('OK', { status: 200 })
 }
@@ -19,13 +19,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Verify Fonnte webhook secret (required)
-    const secret = body.secret as string | undefined
-    if (!secret || !verifyWebhookSecret(secret)) {
+    // Verify Wati.io webhook token (required)
+    const token = body.token as string | undefined
+    if (!token || !verifyWebhookToken(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const msg = parseFonntePayload(body)
+    const msg = parseWatiPayload(body)
     if (!msg) {
       return NextResponse.json({ ok: true, skipped: true })
     }
