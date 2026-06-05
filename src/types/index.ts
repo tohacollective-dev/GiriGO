@@ -19,6 +19,7 @@ export interface User {
   id:         string
   name:       string
   phone:      string
+  email:      string | null
   role:       UserRole
   created_at: string
   updated_at: string
@@ -31,6 +32,7 @@ export interface Courier {
   status:           CourierStatus
   total_orders:     number
   total_earnings:   number
+  active_orders:    number
   completed_orders: number
   current_lat:      number | null
   current_lng:      number | null
@@ -42,6 +44,15 @@ export interface Courier {
   updated_at:       string
   // joined
   user?:            User
+}
+
+export interface Customer {
+  id:         string
+  user_id:    string
+  full_name:  string
+  email:      string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface Order {

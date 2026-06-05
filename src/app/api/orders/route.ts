@@ -75,7 +75,19 @@ export async function POST(req: NextRequest) {
           .insert({ name: d.customer_name, phone, role: 'customer' })
           .select('id')
           .single()
-        if (newUser) customerId = newUser.id
+        if (newUser) {
+          customerId = newUser.id
+          // Also create customer profile
+          await supabaseAdmin
+            .from('customers')
+            .insert({
+              user_id:   customerId,
+              full_name: d.customer_name,
+              email:     null,
+            })
+            .select()
+            .single()
+        }
       }
 
       if (!customerId) {
