@@ -1,15 +1,18 @@
 // =============================================================================
 // GET  /api/orders — List orders (admin)
-// POST /api/orders — Create order (internal/bot)
+// POST /api/orders — Create order (bot, web form, admin)
 // =============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
-import { calculatePrice } from '@/lib/pricing'
+import { calculatePrice, normalizePhone } from '@/lib/pricing'
+import { autoAssignCourier } from '@/lib/dispatch/autoAssignCourier'
 
 const createSchema = z.object({
-  customer_id:     z.string().uuid(),
+  customer_id:     z.string().uuid().optional(),
+  customer_name:   z.string().min(2).optional(),
+  customer_phone:  z.string().min(8).optional(),
   pickup_address:  z.string().min(3),
   pickup_lat:      z.number(),
   pickup_lng:      z.number(),
@@ -52,35 +55,76 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
     }
 
-    const d       = parsed.data
+    const d = parsed.data
+
+    // Resolve customer: use existing customer_id or find/create by phone/name
+    let customerId = d.customer_id
+    if (!customerId && d.customer_phone) {
+      const phone = normalizePhone(d.customer_phone)
+      const { data: existing } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('phone', phone)
+        .single()
+
+      if (existing) {
+        customerId = existing.id
+      } else if (d.customer_name) {
+        const { data: newUser } = await supabaseAdmin
+          .from('users')
+          .insert({ name: d.customer_name, phone, role: 'customer' })
+          .select('id')
+          .single()
+        if (newUser) customerId = newUser.id
+      }
+
+      if (!customerId) {
+        return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 })
+      }
+    }
+
+    if (!customerId) {
+      return NextResponse.json({ error: 'customer_id or customer_phone is required' }, { status: 422 })
+    }
+
     const pricing = calculatePrice(d.distance_km, d.item_weight_kg)
 
-    const { data, error } = await supabaseAdmin
+    const { data: order, error } = await supabaseAdmin
       .from('orders')
       .insert({
-        customer_id:     d.customer_id,
-        pickup_address:  d.pickup_address,
-        pickup_lat:      d.pickup_lat,
-        pickup_lng:      d.pickup_lng,
-        dropoff_address: d.dropoff_address,
-        dropoff_lat:     d.dropoff_lat,
-        dropoff_lng:     d.dropoff_lng,
-        item_type:       d.item_type,
-        item_weight_kg:  d.item_weight_kg,
-        notes:           d.notes,
-        distance_km:     d.distance_km,
-        base_fee:        pricing.base_fee,
+        customer_id:      customerId,
+        pickup_address:   d.pickup_address,
+        pickup_lat:       d.pickup_lat,
+        pickup_lng:       d.pickup_lng,
+        dropoff_address:  d.dropoff_address,
+        dropoff_lat:      d.dropoff_lat,
+        dropoff_lng:      d.dropoff_lng,
+        item_type:        d.item_type,
+        item_weight_kg:   d.item_weight_kg,
+        notes:            d.notes,
+        distance_km:      d.distance_km,
+        base_fee:         pricing.base_fee,
         weight_surcharge: pricing.weight_surcharge,
-        delivery_fee:    pricing.delivery_fee,
-        package_value:   d.package_value,
-        payment_method:  d.payment_method,
-        status:          'pending',
+        delivery_fee:     pricing.delivery_fee,
+        estimated_price:  pricing.delivery_fee,
+        package_value:    d.package_value,
+        payment_method:   d.payment_method,
+        status:           'pending',
       })
       .select()
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ data }, { status: 201 })
+
+    // Auto-dispatch
+    const dispatch = await autoAssignCourier(order.id)
+
+    return NextResponse.json({
+      data:           order,
+      courier_name:   dispatch.courier?.user?.name ?? null,
+      courier_phone:  dispatch.courier?.user?.phone ?? null,
+      auto_assigned:  dispatch.assigned,
+    }, { status: 201 })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }

@@ -18,6 +18,8 @@ const baseCourier = {
   rating: 4.8,
   total_orders: 120,
   total_earnings: 600000,
+  completed_orders: 45,
+  last_seen_at: new Date().toISOString(),
   zone: 'Gerung Kota',
   location_updated: null,
   is_verified: false,

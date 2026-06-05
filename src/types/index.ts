@@ -3,7 +3,7 @@
 // =============================================================================
 
 export type UserRole       = 'customer' | 'courier' | 'admin'
-export type CourierStatus  = 'online'   | 'offline'  | 'busy'
+export type CourierStatus  = 'online'   | 'offline'  | 'busy' | 'available'
 export type OrderStatus    = 'pending'  | 'assigned' | 'picked_up' | 'delivered' | 'cancelled' | 'failed'
 export type PaymentMethod  = 'cod'      | 'transfer' | 'ewallet'
 export type PayoutStatus   = 'unpaid'   | 'settled'
@@ -31,9 +31,11 @@ export interface Courier {
   status:           CourierStatus
   total_orders:     number
   total_earnings:   number
+  completed_orders: number
   current_lat:      number | null
   current_lng:      number | null
   location_updated: string | null
+  last_seen_at:     string | null
   vehicle_type:     string
   is_verified:      boolean
   created_at:       string
@@ -60,6 +62,7 @@ export interface Order {
   base_fee:          number
   weight_surcharge:  number
   delivery_fee:      number
+  estimated_price:   number | null
   package_value:     number
   payment_method:    PaymentMethod
   status:            OrderStatus
@@ -100,14 +103,16 @@ export interface WaSession {
 }
 
 export interface DispatchLogEntry {
-  id:           string
-  order_id:     string
-  courier_id:   string | null
-  attempt:      number
-  score:        number | null
-  result:       DispatchResult
-  offered_at:   string
-  responded_at: string | null
+  id:            string
+  order_id:      string
+  courier_id:    string | null
+  attempt:       number
+  score:         number | null
+  dispatch_type: string | null
+  distance_km:   number | null
+  result:        DispatchResult
+  offered_at:    string
+  responded_at:  string | null
 }
 
 export interface Rating {
@@ -171,6 +176,14 @@ export interface CourierScore {
   workload_score: number
   rating_score: number
   distance_km:  number
+}
+
+export interface CourierLocation {
+  id:          string
+  courier_id:  string
+  latitude:    number
+  longitude:   number
+  recorded_at: string
 }
 
 export interface WhatsAppInboundMessage {

@@ -10,7 +10,7 @@ import { authenticateRequest } from '@/lib/api-auth'
 
 const schema = z.object({
   courier_id: z.string().uuid(),
-  status:     z.enum(['online', 'offline', 'busy']),
+  status:     z.enum(['online', 'offline', 'busy', 'available']),
   lat:        z.number().min(-90).max(90).optional(),
   lng:        z.number().min(-180).max(180).optional(),
 })
@@ -26,7 +26,6 @@ export async function PATCH(req: NextRequest) {
     // Try session-based auth first
     const session = await authenticateRequest(req)
     if (session) {
-      // Verify the authenticated user owns this courier profile
       const { data: courier } = await supabaseAdmin
         .from('couriers')
         .select('id')
@@ -37,21 +36,32 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: 'Cannot update another courier' }, { status: 403 })
       }
     }
-    // If no session, fall through (backward compat with localStorage-based PWA)
 
-    const update: Record<string, unknown> = { status }
+    const now = new Date().toISOString()
+    const update: Record<string, unknown> = { status, last_seen_at: now }
     if (lat !== undefined && lng !== undefined) {
       update.current_lat       = lat
       update.current_lng       = lng
-      update.location_updated  = new Date().toISOString()
+      update.location_updated  = now
     }
 
+    // Update courier
     const { error } = await supabaseAdmin
       .from('couriers')
       .update(update)
       .eq('id', courier_id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Log GPS to history
+    if (lat !== undefined && lng !== undefined) {
+      await supabaseAdmin
+        .from('courier_locations')
+        .insert({ courier_id, latitude: lat, longitude: lng, recorded_at: now })
+        .select()
+        .single()
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
