@@ -3,10 +3,11 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Package, MapPin, User, Phone, FileText, Navigation,
   Loader2, CheckCircle, ArrowRight, Clock, Truck,
-  ChevronDown, AlertCircle, ShieldCheck,
+  ChevronDown, AlertCircle, ShieldCheck, AlertTriangle,
 } from 'lucide-react'
 import { formatIDR } from '@/lib/pricing'
 import { useGoogleMaps } from '@/hooks/useGoogleMaps'
+import type { PlaceResult } from '@/hooks/useGoogleMaps'
 
 // ── Zone reference data ────────────────────────────────────────────────────
 const ZONES = [
@@ -26,12 +27,12 @@ const KM_LOOKUP: Record<string, number> = {
 
 const PACKAGE_TYPES = [
   { value: '',           label: 'Pilih jenis paket',   weight: 0 },
-  { value: 'Dokumen',   label: '📄 Dokumen / Surat',   weight: 0.2 },
-  { value: 'Makanan',   label: '🍱 Makanan & Minuman', weight: 0.5 },
-  { value: 'Paket Kecil',  label: '📦 Paket Kecil (< 1 kg)',  weight: 0.8 },
-  { value: 'Paket Sedang', label: '📦 Paket Sedang (1–3 kg)', weight: 2.0 },
-  { value: 'Paket Besar',  label: '📦 Paket Besar (3–5 kg)',  weight: 4.0 },
-  { value: 'Lainnya',   label: '📋 Barang Lainnya',    weight: 1.0 },
+  { value: 'Dokumen',   label: 'Dokumen / Surat',   weight: 0.2 },
+  { value: 'Makanan',   label: 'Makanan & Minuman', weight: 0.5 },
+  { value: 'Paket Kecil',  label: 'Paket Kecil (< 1 kg)',  weight: 0.8 },
+  { value: 'Paket Sedang', label: 'Paket Sedang (1-3 kg)', weight: 2.0 },
+  { value: 'Paket Besar',  label: 'Paket Besar (3-5 kg)',  weight: 4.0 },
+  { value: 'Lainnya',   label: 'Barang Lainnya',    weight: 1.0 },
 ]
 
 function lookupKm(a: string, b: string): number | null {
@@ -75,7 +76,6 @@ function RoutePreview({ preview }: { preview: PreviewState }) {
                     preview.dropoff_lat != null && preview.dropoff_lng != null
   if (!hasCoords) return null
 
-  // Compute relative positions for simple SVG preview
   const pad = 40
   const w = 320, h = 160
   const latMin = Math.min(preview.pickup_lat!, preview.dropoff_lat!)
@@ -102,15 +102,11 @@ function RoutePreview({ preview }: { preview: PreviewState }) {
       </div>
       <div className="p-3 flex justify-center">
         <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-[320px] h-auto rounded-lg bg-[#F8FAFC]">
-          {/* Route line */}
           <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#94A3B8" strokeWidth="2" strokeDasharray="6,3" />
-          {/* Pickup marker */}
           <circle cx={x1} cy={y1} r="10" fill="#22C55E" stroke="white" strokeWidth="2" />
           <text x={x1} y={y1 + 4} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">A</text>
-          {/* Dropoff marker */}
           <circle cx={x2} cy={y2} r="10" fill="#EF4444" stroke="white" strokeWidth="2" />
           <text x={x2} y={y2 + 4} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">B</text>
-          {/* Labels */}
           <text x={x1} y={y1 - 16} textAnchor="middle" fill="#64748B" fontSize="9" fontWeight="600">
             {truncate(preview.pickup_display ?? 'Jemput', 20)}
           </text>
@@ -150,6 +146,10 @@ export default function OrderPage() {
   const pickupInputRef = useRef<HTMLInputElement>(null)
   const destInputRef   = useRef<HTMLInputElement>(null)
 
+  // Track whether autocomplete has been bound
+  const [pickupAutocompleteBound, setPickupAutocompleteBound] = useState(false)
+  const [destAutocompleteBound,   setDestAutocompleteBound]   = useState(false)
+
   // Preview
   const [geoLoading, setGeoLoading] = useState(false)
   const [preview,    setPreview]    = useState<PreviewState | null>(null)
@@ -160,43 +160,17 @@ export default function OrderPage() {
     pickup?: string; dest?: string; fee?: number; km?: number
   } | null>(null)
 
-  // Google Maps
-  const { mapsLoading, initAutocomplete } = useGoogleMaps()
-
-  // ── Bind autocomplete when Maps loads ───────────────────────────────────────
-  useEffect(() => {
-    if (mapsLoading) return
-    const pInput = pickupInputRef.current
-    const dInput = destInputRef.current
-    if (pInput) {
-      initAutocomplete(pInput, place => {
-        setPickupAddress(place.display_name)
-        updatePreviewForPickup(place)
-      })
-    }
-    if (dInput) {
-      initAutocomplete(dInput, place => {
-        setDestAddress(place.display_name)
-        updatePreviewForDest(place)
-      })
-    }
-  }, [mapsLoading, initAutocomplete])
-
   // Track lat/lng from Places API
   const [pickupPlace, setPickupPlace] = useState<{lat:number;lng:number;display:string}|null>(null)
   const [destPlace,   setDestPlace]   = useState<{lat:number;lng:number;display:string}|null>(null)
 
-  const updatePreviewForPickup = useCallback((place: {lat:number;lng:number;display_name:string}) => {
-    setPickupPlace({ lat: place.lat, lng: place.lng, display: place.display_name })
-    recalcPreview({ lat: place.lat, lng: place.lng, display: place.display_name }, destPlace)
-  }, [destPlace])
+  // Refs to capture latest preview state for stale closure safety
+  const destPlaceRef = useRef(destPlace)
+  destPlaceRef.current = destPlace
+  const pickupPlaceRef = useRef(pickupPlace)
+  pickupPlaceRef.current = pickupPlace
 
-  const updatePreviewForDest = useCallback((place: {lat:number;lng:number;display_name:string}) => {
-    setDestPlace({ lat: place.lat, lng: place.lng, display: place.display_name })
-    recalcPreview(pickupPlace, { lat: place.lat, lng: place.lng, display: place.display_name })
-  }, [pickupPlace])
-
-  const recalcPreview = (p: {lat:number;lng:number;display:string}|null,
+  const recalcPreview = useCallback((p: {lat:number;lng:number;display:string}|null,
                           d: {lat:number;lng:number;display:string}|null) => {
     if (p && d) {
       const km = Math.round(haversineKm(p.lat, p.lng, d.lat, d.lng) * 10) / 10
@@ -207,14 +181,53 @@ export default function OrderPage() {
         pickup_display: p.display, dropoff_display: d.display,
       })
     }
-  }
+  }, [])
+
+  const updatePreviewForPickup = useCallback((place: PlaceResult) => {
+    setPickupPlace({ lat: place.lat, lng: place.lng, display: place.display_name })
+    recalcPreview({ lat: place.lat, lng: place.lng, display: place.display_name }, destPlaceRef.current)
+  }, [recalcPreview])
+
+  const updatePreviewForDest = useCallback((place: PlaceResult) => {
+    setDestPlace({ lat: place.lat, lng: place.lng, display: place.display_name })
+    recalcPreview(pickupPlaceRef.current, { lat: place.lat, lng: place.lng, display: place.display_name })
+  }, [recalcPreview])
+
+  // Google Maps
+  const { placesReady, mapsError, mapsLoading, initAutocomplete } = useGoogleMaps()
+
+  // Stash latest callbacks in refs for the autocomplete useEffect
+  const onPickupPlaceRef = useRef(updatePreviewForPickup)
+  onPickupPlaceRef.current = updatePreviewForPickup
+  const onDestPlaceRef = useRef(updatePreviewForDest)
+  onDestPlaceRef.current = updatePreviewForDest
+
+  // ── Bind autocomplete when Places API is ready ──────────────────────────────
+  useEffect(() => {
+    if (!placesReady) return
+
+    if (!pickupAutocompleteBound && pickupInputRef.current) {
+      const instance = initAutocomplete(pickupInputRef.current, (place: PlaceResult) => {
+        setPickupAddress(place.display_name)
+        onPickupPlaceRef.current(place)
+      })
+      if (instance) setPickupAutocompleteBound(true)
+    }
+
+    if (!destAutocompleteBound && destInputRef.current) {
+      const instance = initAutocomplete(destInputRef.current, (place: PlaceResult) => {
+        setDestAddress(place.display_name)
+        onDestPlaceRef.current(place)
+      })
+      if (instance) setDestAutocompleteBound(true)
+    }
+  }, [placesReady, pickupAutocompleteBound, destAutocompleteBound, initAutocomplete])
 
   // ── Zone-based fallback pricing ──────────────────────────────────────────────
   const effectivePickup = pickupAddress || pickupZone || 'Gerung Kota'
   const effectiveDest   = destAddress   || destZone   || 'Dasan Baru'
 
   useEffect(() => {
-    // If we have Places results, don't override with zone lookup
     if (pickupPlace && destPlace) return
 
     const km = lookupKm(effectivePickup, effectiveDest)
@@ -224,17 +237,24 @@ export default function OrderPage() {
       pickup_display: effectivePickup, dropoff_display: effectiveDest,
     })
     geocodeAddresses()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectivePickup, effectiveDest, pickupPlace, destPlace])
 
   const geocodeAddresses = useCallback(async () => {
-    if (pickupPlace && destPlace) return // Already have GPS from Places
+    if (pickupPlace && destPlace) return
+
+    // Guard: don't call geocode with addresses that will fail validation (min 3 chars)
+    const pAddr = effectivePickup.trim()
+    const dAddr = effectiveDest.trim()
+    if (pAddr.length < 3 || dAddr.length < 3) return
+
     setGeoLoading(true)
     try {
       const res = await fetch('/api/geocode', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pickup_address: effectivePickup,
-          dropoff_address: effectiveDest,
+          pickup_address: pAddr,
+          dropoff_address: dAddr,
           weight_kg: PACKAGE_TYPES.find(p => p.value === packageType)?.weight ?? 1.0,
         }),
       })
@@ -248,7 +268,7 @@ export default function OrderPage() {
         const newDropoffLng = data.dropoff?.lng ?? destPlace?.lng   ?? prev.dropoff_lng
         return {
           ...prev,
-          distance_km:     data.route?.distance_km ?? prev.distance_km,
+          distance_km:     data.distance_km ?? prev.distance_km,
           price:           data.pricing?.delivery_fee ?? prev.price,
           pickup_lat:      newPickupLat, pickup_lng: newPickupLng,
           dropoff_lat:     newDropoffLat, dropoff_lng: newDropoffLng,
@@ -339,7 +359,7 @@ export default function OrderPage() {
               <CheckCircle size={40} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold">Order Berhasil!</h1>
-            <p className="text-white/60 text-sm mt-1">Kurir akan segera dijadwalkan 🛵</p>
+            <p className="text-white/60 text-sm mt-1">Kurir akan segera dijadwalkan</p>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-2xl p-5 space-y-4">
             <div className="flex items-center gap-3 pb-4 border-b border-white/10">
@@ -397,6 +417,8 @@ export default function OrderPage() {
   // ═══════════════════════════════════════════════════════════════════════════
   // FORM
   // ═══════════════════════════════════════════════════════════════════════════
+  const showMapsWarning = mapsError && !pickupPlace && !destPlace
+
   return (
     <div className="min-h-screen bg-[#F0F2F5]">
       {/* Header */}
@@ -404,12 +426,22 @@ export default function OrderPage() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/20 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl" />
         <div className="relative">
           <div className="flex items-center gap-3 mb-1">
-            <span className="text-2xl">🛵</span>
+            <span className="text-2xl">&#x1F6F5;</span>
             <div><h1 className="text-xl font-bold">GiriGo Courier</h1><p className="text-white/50 text-xs">Gerung, Lombok Barat</p></div>
           </div>
-          <p className="text-white/70 text-sm mt-3">Isi form di bawah, kurir kami siap antar 🚀</p>
+          <p className="text-white/70 text-sm mt-3">Isi form di bawah, kurir kami siap antar</p>
         </div>
       </div>
+
+      {/* Maps error warning */}
+      {showMapsWarning && (
+        <div className="px-4 mt-3">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center gap-3">
+            <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+            <p className="text-sm text-amber-700">Alamat otomatis tidak tersedia. Silakan gunakan pilihan zona manual.</p>
+          </div>
+        </div>
+      )}
 
       {/* Price estimator */}
       <div className="px-4 -mt-3 relative z-10">
@@ -488,11 +520,12 @@ export default function OrderPage() {
               <label className="block text-xs font-semibold text-gray-500 mb-1.5">
                 Atau ketik alamat
                 {mapsLoading && <Loader2 size={10} className="inline ml-1 animate-spin text-gray-400" />}
+                {placesReady && !pickupAutocompleteBound && <Loader2 size={10} className="inline ml-1 animate-spin text-brand-400" />}
               </label>
               <div className="relative">
                 <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400" />
                 <input ref={pickupInputRef} className={`${inputCls('')} pl-9`}
-                       placeholder="Jl. Gajah Mada No.5, Gerung..."
+                       placeholder={mapsError ? "Ketik alamat manual..." : "Jl. Gajah Mada No.5, Gerung..."}
                        value={pickupAddress}
                        onChange={e => { setPickupAddress(e.target.value); setPickupZone('') }} />
               </div>
@@ -547,11 +580,12 @@ export default function OrderPage() {
               <label className="block text-xs font-semibold text-gray-500 mb-1.5">
                 Atau ketik alamat
                 {mapsLoading && <Loader2 size={10} className="inline ml-1 animate-spin text-gray-400" />}
+                {placesReady && !destAutocompleteBound && <Loader2 size={10} className="inline ml-1 animate-spin text-brand-400" />}
               </label>
               <div className="relative">
                 <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-red-400" />
                 <input ref={destInputRef} className={`${inputCls('')} pl-9`}
-                       placeholder="Jl. Sudirman No.10, Kediri..."
+                       placeholder={mapsError ? "Ketik alamat manual..." : "Jl. Sudirman No.10, Kediri..."}
                        value={destAddress}
                        onChange={e => { setDestAddress(e.target.value); setDestZone('') }} />
               </div>
@@ -610,7 +644,7 @@ export default function OrderPage() {
             <span className="text-gray-300">·</span>
             <span>±{preview.eta} mnt</span>
             {preview.pickup_lat && preview.dropoff_lat && (
-              <span className="text-[10px] text-green-500">📍 GPS ready</span>
+              <span className="text-[10px] text-green-500">GPS ready</span>
             )}
           </p>
         )}
