@@ -51,6 +51,7 @@ export function ActivateSignCard() {
   const fetchState = useCallback(async () => {
     try {
       const res  = await fetch('/api/admin/signage')
+      if (!res.ok) throw new Error('Failed to fetch signage state')
       const json = await res.json()
       setState({ active: Boolean(json.active), updated_at: json.updated_at ?? null })
     } catch {

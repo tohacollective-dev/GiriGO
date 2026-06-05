@@ -6,7 +6,7 @@ import {
 } from 'recharts'
 import { format, parseISO, subDays } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
-import { Download, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Minus, AlertTriangle, RefreshCw } from 'lucide-react'
 import { formatIDR } from '@/lib/pricing'
 import { Skeleton } from '@/components/ui/Skeleton'
 
@@ -132,14 +132,19 @@ function exportCSV(rows: Analytics['daily'], period: Period) {
 export default function AnalyticsPage() {
   const [data,    setData]    = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState<string | null>(null)
   const [period,  setPeriod]  = useState<Period>(7)
 
   const fetchData = useCallback(() => {
     setLoading(true)
+    setError(null)
     fetch('/api/analytics')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(r.status === 401 ? 'Unauthorized' : 'Gagal mengambil data')
+        return r.json()
+      })
       .then(d => { setData(d); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch((err) => { setError(err.message ?? 'Gagal menghubungi server'); setLoading(false) })
   }, [])
 
   useEffect(() => { fetchData() }, [fetchData])
@@ -222,6 +227,21 @@ export default function AnalyticsPage() {
           </button>
         </div>
       </div>
+
+      {/* Error state */}
+      {error && (
+        <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-xl">
+          <AlertTriangle size={18} className="text-red-500 shrink-0" />
+          <p className="text-sm text-red-700 flex-1">Gagal memuat data analitik. Pastikan Anda sudah login.</p>
+          <button
+            onClick={fetchData}
+            className="flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-800 px-3 py-1.5 rounded-lg hover:bg-red-100"
+          >
+            <RefreshCw size={13} />
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* ── KPI row ── */}
       {loading ? (

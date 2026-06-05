@@ -125,8 +125,8 @@ export default function AdminDashboard() {
         fetch('/api/orders?status=pending&limit=5'),
       ])
       const [analytics, orders] = await Promise.all([analyticsRes.json(), ordersRes.json()])
-      setData(analytics)
-      setPendingOrders(orders.data ?? [])
+      if (analyticsRes.ok) setData(analytics)
+      setPendingOrders(ordersRes.ok ? (orders.data ?? []) : [])
     } finally {
       setLoading(false)
     }
@@ -134,10 +134,11 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchAll() }, [])
 
-  const ov        = data?.overview
-  const onlineCnt = data?.couriers.filter(c => c.status === 'online').length  ?? 0
-  const busyCnt   = data?.couriers.filter(c => c.status === 'busy').length    ?? 0
-  const offlineCnt= data?.couriers.filter(c => c.status === 'offline').length ?? 0
+  const ov         = data?.overview
+  const couriers   = data?.couriers ?? []
+  const onlineCnt  = couriers.filter(c => c.status === 'online').length
+  const busyCnt    = couriers.filter(c => c.status === 'busy').length
+  const offlineCnt = couriers.filter(c => c.status === 'offline').length
 
   // Sparkline data: last 7 days order counts
   const last7     = (data?.daily ?? []).slice(0, 7).reverse()
