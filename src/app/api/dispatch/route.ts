@@ -5,15 +5,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { dispatchOrder } from '@/lib/dispatch'
+import { authenticateRequest } from '@/lib/api-auth'
 
 const schema = z.object({
   order_id: z.string().uuid(),
 })
 
 export async function POST(req: NextRequest) {
-  // Protect: only internal calls (from bot / admin)
-  const secret = req.headers.get('x-admin-secret')
-  if (secret !== process.env.ADMIN_SECRET) {
+  // Auth: accept either session cookie (admin UI) or shared secret (bot/internal)
+  const authResult = await authenticateRequest(req)
+  const secret      = req.headers.get('x-admin-secret')
+
+  if (!authResult && secret !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 const batchSchema = z.object({
   action:     z.enum(['assign', 'cancel']),
@@ -13,6 +14,9 @@ const batchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   try {
     const body   = await req.json()
     const parsed = batchSchema.safeParse(body)

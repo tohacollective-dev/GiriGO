@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 // Returns ALL couriers with their GPS coords + active order count
 // Used exclusively by the admin real-time map — refreshed every 10s
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   const { data: couriers, error: cErr } = await supabaseAdmin
     .from('couriers')
     .select(`

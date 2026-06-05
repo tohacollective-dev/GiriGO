@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 const KEY = 'signage'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   const { data, error } = await supabaseAdmin
     .from('system_settings')
     .select('value, updated_at')
@@ -20,7 +24,10 @@ export async function GET() {
   })
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   let body: unknown
   try {
     body = await req.json()

@@ -5,10 +5,14 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 const COURIER_SHARE_PCT = 0.85
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   const { searchParams } = new URL(req.url)
   // Default to today (Jakarta time, UTC+8)
   const dateParam = searchParams.get('date') ?? new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)

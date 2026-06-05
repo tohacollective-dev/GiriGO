@@ -2,11 +2,15 @@
 // GET /api/admin/routes — Route Optimization dashboard data
 // =============================================================================
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { calculateCostSavings } from '@/lib/route-matching'
+import { requireAuth } from '@/lib/api-auth'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   const [routesRes, allOrdersRes] = await Promise.all([
     supabaseAdmin
       .from('courier_active_routes')

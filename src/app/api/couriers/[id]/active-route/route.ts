@@ -5,11 +5,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin }             from '@/lib/supabase'
+import { requireAuth }               from '@/lib/api-auth'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   const courierId = params.id
 
   // Fetch courier profile

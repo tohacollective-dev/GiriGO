@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z }                         from 'zod'
 import { supabaseAdmin }             from '@/lib/supabase'
 import { calculatePrice }            from '@/lib/pricing'
+import { requireAuth }               from '@/lib/api-auth'
 import {
   getBestMatchedCouriers,
   upsertCourierRoute,
@@ -32,6 +33,9 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   try {
     const body   = await req.json()
     const parsed = schema.safeParse(body)

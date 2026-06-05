@@ -330,8 +330,7 @@ export default function ExceptionsPage() {
       await fetch('/api/dispatch', {
         method:  'POST',
         headers: {
-          'Content-Type':   'application/json',
-          'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_SECRET ?? '',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ order_id: orderId }),
       })

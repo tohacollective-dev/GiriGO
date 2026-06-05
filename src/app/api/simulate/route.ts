@@ -26,6 +26,13 @@ const SIM_LOCATIONS = {
 const SIM_PREFIX = '[SIM]'
 
 export async function POST(req: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Simulation is only available in development' },
+      { status: 403 },
+    )
+  }
+
   try {
     const { action, order_id, courier_id } = await req.json()
 

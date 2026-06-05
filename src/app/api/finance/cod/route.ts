@@ -5,11 +5,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 // ---------------------------------------------------------------------------
 // GET — COD totals per courier
 // ---------------------------------------------------------------------------
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   // Fetch all delivered COD orders, joining courier + user name
   const { data: orders, error } = await supabaseAdmin
     .from('orders')
@@ -100,6 +104,9 @@ export async function GET(_req: NextRequest) {
 // POST — Mark order_ids as settled in ledger
 // ---------------------------------------------------------------------------
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof Response) return auth
+
   let body: { order_ids?: string[] }
   try {
     body = await req.json()
