@@ -9,8 +9,9 @@ export type PaymentMethod  = 'cod'      | 'transfer' | 'ewallet'
 export type PayoutStatus   = 'unpaid'   | 'settled'
 export type DispatchResult = 'accepted' | 'rejected' | 'timeout'   | 'admin_alert'
 export type SessionState   =
-  | 'idle' | 'awaiting_name' | 'awaiting_pickup' | 'awaiting_dropoff'
+  | 'idle' | 'menu' | 'awaiting_name' | 'awaiting_pickup' | 'awaiting_dropoff'
   | 'awaiting_package_type' | 'awaiting_payment' | 'awaiting_confirmation'
+  | 'awaiting_recipient_name' | 'awaiting_recipient_phone'
   | 'order_active' | 'awaiting_rating'
 
 // ── Database row types ────────────────────────────────────────────────────────
@@ -130,6 +131,8 @@ export interface OrderContext {
   item_type?:        string
   item_weight_kg?:   number
   notes?:            string
+  recipient_name?:   string
+  recipient_phone?:  string
   payment_method?:   PaymentMethod
   package_value?:    number
   distance_km?:      number
