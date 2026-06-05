@@ -144,8 +144,24 @@ export default function AdminDashboard() {
   const sparkOrders  = last7.map(d => d.total_orders)
   const sparkRevenue = last7.map(d => d.gross_revenue)
 
+  // Compute period-over-period trends from daily data
+  const computeTrend = (recent: number[], older: number[]): number => {
+    const sumRecent = recent.reduce((a, b) => a + b, 0)
+    const sumOlder  = older.reduce((a, b) => a + b, 0)
+    if (!sumOlder) return 0
+    return Math.round((sumRecent - sumOlder) / sumOlder * 100)
+  }
+
+  const daily = data?.daily ?? []
+  const week1 = daily.slice(0, 7)
+  const week2 = daily.slice(7, 14)
+  const ordersTrend  = computeTrend(week1.map(d => d.total_orders), week2.map(d => d.total_orders))
+  const revenueTrend = computeTrend(week1.map(d => d.gross_revenue), week2.map(d => d.gross_revenue))
+
+  const successRate = ov?.success_rate ?? 0
+
   // 7-day bar chart data (today highlighted)
-  const barData = (data?.daily ?? []).slice(0, 7).reverse().map((d, i, arr) => ({
+  const barData = daily.slice(0, 7).reverse().map((d, i, arr) => ({
     date:    d.date.slice(5),
     orders:  d.total_orders,
     revenue: d.gross_revenue,
@@ -190,7 +206,7 @@ export default function AdminDashboard() {
               value={ov?.total_orders ?? 0}
               icon={Package}
               iconBg="bg-brand-500"
-              trend={12}
+              trend={ordersTrend}
               sparkData={sparkOrders}
             />
             <KpiCard
@@ -206,16 +222,15 @@ export default function AdminDashboard() {
               sub={`Platform: ${formatIDR(ov?.platform_revenue ?? 0)}`}
               icon={TrendingUp}
               iconBg="bg-purple-500"
-              trend={8}
+              trend={revenueTrend}
               sparkData={sparkRevenue}
             />
             <KpiCard
-              label="Avg Delivery Time"
-              value="28 min"
-              sub="Target: < 35 min"
-              icon={Clock}
+              label="Success Rate"
+              value={`${successRate}%`}
+              sub={`${ov?.total_delivered ?? 0} / ${ov?.total_orders ?? 0} delivered`}
+              icon={CheckCircle}
               iconBg="bg-green-500"
-              trend={-3}
             />
           </>
         )}

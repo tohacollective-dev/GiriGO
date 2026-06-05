@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { AlertTriangle, Clock, RefreshCw, CheckCircle, Phone, RotateCcw, XCircle, StickyNote } from 'lucide-react'
+import { AlertTriangle, Clock, RefreshCw, CheckCircle, Phone, UserCheck, XCircle } from 'lucide-react'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { formatIDR } from '@/lib/pricing'
@@ -50,12 +50,6 @@ function waLink(phone: string | undefined | null): string | null {
   return `https://wa.me/${e164}`
 }
 
-// Tab slot assignment — for now pending = open, failed = open.
-// Future: "in_review" and "resolved" could come from a separate flags table.
-function toTabSlot(_order: ExceptionOrder, _type: ExceptionType): ActiveTab {
-  return 'open'
-}
-
 // ── Skeleton ────────────────────────────────────────────────────────────────
 
 function CardSkeleton() {
@@ -81,13 +75,11 @@ function ExceptionCardView({
   card,
   onAssign,
   onCancel,
-  onResolve,
   actionLoading,
 }: {
   card:          ExceptionCard
   onAssign:      (id: string) => Promise<void>
   onCancel:      (id: string) => Promise<void>
-  onResolve:     (id: string) => Promise<void>
   actionLoading: Record<string, boolean>
 }) {
   const { type, order, tabSlot } = card
@@ -188,7 +180,7 @@ function ExceptionCardView({
               disabled={busy}
               className="btn-primary text-xs flex items-center gap-1.5 py-1.5 px-3"
             >
-              <RotateCcw size={12} className={busy ? 'animate-spin' : ''} />
+              <UserCheck size={12} />
               Assign Manually
             </button>
             <button
@@ -220,23 +212,16 @@ function ExceptionCardView({
               disabled={busy}
               className="btn-primary text-xs flex items-center gap-1.5 py-1.5 px-3"
             >
-              <RotateCcw size={12} className={busy ? 'animate-spin' : ''} />
-              Reschedule
+              <UserCheck size={12} />
+              Assign Kurir
             </button>
             <button
-              onClick={() => onResolve(order.id)}
+              onClick={() => onCancel(order.id)}
               disabled={busy}
-              className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 text-green-700 hover:bg-green-50 border border-green-200"
+              className="btn-danger text-xs py-1.5 px-3 flex items-center gap-1.5"
             >
-              <CheckCircle size={12} />
-              Mark Resolved
-            </button>
-            <button
-              disabled
-              className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 opacity-50 cursor-not-allowed"
-            >
-              <StickyNote size={12} />
-              Add Note
+              <XCircle size={12} />
+              Cancel Order
             </button>
             {courierWA && (
               <a
@@ -274,7 +259,6 @@ export default function ExceptionsPage() {
   const [pending,       setPending]       = useState<ExceptionOrder[]>([])
   const [totalToday,    setTotalToday]    = useState(0)
   const [loading,       setLoading]       = useState(true)
-  const [activeTab,     setActiveTab]     = useState<ActiveTab>('open')
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({})
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
@@ -354,43 +338,20 @@ export default function ExceptionsPage() {
     }
   }
 
-  async function handleResolve(orderId: string) {
-    await setOrderBusy(orderId, true)
-    try {
-      await fetch(`/api/orders/${orderId}`, {
-        method:  'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ status: 'cancelled' }),
-      })
-      await fetchData()
-    } finally {
-      await setOrderBusy(orderId, false)
-    }
-  }
-
   // ── Build exception cards ─────────────────────────────────────────────────
   const timeoutCards: ExceptionCard[] = pending.map(o => ({
     type:    'TIMEOUT',
     order:   o,
-    tabSlot: toTabSlot(o, 'TIMEOUT'),
+    tabSlot: 'open' as ActiveTab,
   }))
 
   const failedCards: ExceptionCard[] = failed.map(o => ({
     type:    'FAILED_DELIVERY',
     order:   o,
-    tabSlot: toTabSlot(o, 'FAILED_DELIVERY'),
+    tabSlot: 'open' as ActiveTab,
   }))
 
   const allCards = [...timeoutCards, ...failedCards]
-
-  const openCards     = allCards.filter(c => c.tabSlot === 'open')
-  const reviewCards   = allCards.filter(c => c.tabSlot === 'in_review')
-  const resolvedCards = allCards.filter(c => c.tabSlot === 'resolved')
-
-  const visibleCards =
-    activeTab === 'open'      ? openCards     :
-    activeTab === 'in_review' ? reviewCards   :
-                                resolvedCards
 
   // ── Exception rate KPI ────────────────────────────────────────────────────
   const exceptionCount  = failed.length + pending.length
@@ -431,32 +392,18 @@ export default function ExceptionsPage() {
         </button>
       </div>
 
-      {/* Tab bar */}
+      {/* Tab bar — all exceptions shown as open */}
       <div className="flex items-center gap-1 border-b border-gray-200">
-        {(
-          [
-            { key: 'open',      label: 'Open',      count: openCards.length,     dotColor: 'bg-orange-400' },
-            { key: 'in_review', label: 'In Review',  count: reviewCards.length,  dotColor: 'bg-blue-400'   },
-            { key: 'resolved',  label: 'Resolved',   count: resolvedCards.length, dotColor: 'bg-green-400' },
-          ] as const
-        ).map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap flex items-center gap-2 ${
-              activeTab === tab.key
-                ? 'border-brand-500 text-brand-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            {tab.label}
-            {tab.count > 0 && (
-              <span className={`inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold text-white ${tab.dotColor}`}>
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
+        <button
+          className="px-4 py-2.5 text-sm font-medium border-b-2 border-brand-500 text-brand-600 -mb-px whitespace-nowrap flex items-center gap-2"
+        >
+          Open
+          {allCards.length > 0 && (
+            <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full text-[11px] font-bold text-white bg-orange-400">
+              {allCards.length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Card grid */}
@@ -464,7 +411,7 @@ export default function ExceptionsPage() {
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
-      ) : visibleCards.length === 0 ? (
+      ) : allCards.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-16 text-center space-y-2">
           <CheckCircle size={40} className="text-green-400" />
           <p className="font-semibold text-gray-700 text-base">No exceptions today</p>
@@ -472,13 +419,12 @@ export default function ExceptionsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {visibleCards.map(card => (
+          {allCards.map(card => (
             <ExceptionCardView
               key={`${card.type}-${card.order.id}`}
               card={card}
               onAssign={handleAssign}
               onCancel={handleCancel}
-              onResolve={handleResolve}
               actionLoading={actionLoading}
             />
           ))}

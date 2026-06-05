@@ -94,11 +94,13 @@ function ActionMenu({
   isOpen,
   onOpen,
   onClose,
+  onToggleStatus,
 }: {
-  courier: CourierRow
-  isOpen: boolean
-  onOpen: () => void
-  onClose: () => void
+  courier:         CourierRow
+  isOpen:          boolean
+  onOpen:          () => void
+  onClose:         () => void
+  onToggleStatus:  (id: string, newStatus: string) => void
 }) {
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -113,7 +115,10 @@ function ActionMenu({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [isOpen, onClose])
 
-  const phone = courier.user.phone.replace(/^0/, '').replace(/\D/g, '')
+  const phone           = courier.user.phone.replace(/^0/, '').replace(/\D/g, '')
+  const isOnline        = courier.status === 'online'
+  const nextStatusLabel = isOnline ? 'Set Offline' : 'Set Online'
+  const nextStatus      = isOnline ? 'offline' : 'online'
 
   return (
     <div className="flex items-center gap-1">
@@ -141,21 +146,21 @@ function ActionMenu({
           <div className="absolute right-0 top-8 z-50 w-40 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-slide-down">
             <button
               className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={onClose}
+              onClick={() => {
+                window.open(`https://wa.me/62${phone}`, '_blank')
+                onClose()
+              }}
             >
-              View Profile
+              WhatsApp
             </button>
             <button
               className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={onClose}
+              onClick={() => {
+                onToggleStatus(courier.id, nextStatus)
+                onClose()
+              }}
             >
-              Set Offline
-            </button>
-            <button
-              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              onClick={onClose}
-            >
-              Suspend
+              {nextStatusLabel}
             </button>
           </div>
         )}
@@ -212,6 +217,26 @@ export default function CouriersPage() {
 
   useEffect(() => { fetchCouriers() }, [fetchCouriers])
 
+  const handleToggleStatus = async (courierId: string, newStatus: string) => {
+    try {
+      await fetch('/api/courier/status', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ courier_id: courierId, status: newStatus }),
+      })
+      fetchCouriers()
+    } catch { /* keep stale data on error */ }
+  }
+
+  const handleInviteCourier = () => {
+    const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP
+    const inviteMsg  = encodeURIComponent(
+      'Halo! Kami dari GiriGo Courier ingin mengundang Anda bergabung sebagai kurir. ' +
+      'Silakan balas pesan ini untuk informasi lebih lanjut. 🛵'
+    )
+    window.open(`https://wa.me/${adminPhone || '6281234567890'}?text=${inviteMsg}`, '_blank')
+  }
+
   const byStatus      = (s: string) => couriers.filter(c => c.status === s)
   const unverified    = couriers.filter(c => !c.is_verified)
 
@@ -251,7 +276,10 @@ export default function CouriersPage() {
           >
             <Download size={14} /> Export
           </button>
-          <button className="btn-primary flex items-center gap-1.5 text-xs">
+          <button
+            onClick={handleInviteCourier}
+            className="btn-primary flex items-center gap-1.5 text-xs"
+          >
             <UserPlus size={14} /> Undang Kurir
           </button>
           <button onClick={fetchCouriers} className="btn-ghost flex items-center gap-2" disabled={loading}>
@@ -405,6 +433,7 @@ export default function CouriersPage() {
                         isOpen={isMenuOpen}
                         onOpen={() => setOpenMenuId(c.id)}
                         onClose={() => setOpenMenuId(null)}
+                        onToggleStatus={handleToggleStatus}
                       />
                     </td>
                   </tr>
